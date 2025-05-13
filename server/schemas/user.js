@@ -22,15 +22,20 @@ const userTypeDefs = `#graphql
 const userResolvers = {
   Query: {
     users: async () => {
-      const users = await User.create();
+      const users = await User.find();
+      return users;
     },
   },
+
   Mutation: {
     register: async (_, { username, email, password }) => {
-      let newUser = { username, email, password };
-      await User.create(newUser);
-
+      await User.create({ username, email, password });
       return "Register Success";
+    },
+
+    login: async (_, { username, password }) => {
+      const result = await User.login({ username, password });
+      return result.access_token;
     },
   },
 };

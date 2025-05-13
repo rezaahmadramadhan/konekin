@@ -1,43 +1,48 @@
 const { database } = require("../config/mongodb");
-const { hashPassword } = require("../helpers/bcrypt");
+const { hashPassword, comparePassword } = require("../helpers/bcrypt");
+const { signToken } = require("../helpers/jwt");
 
 class User {
   static collection() {
     return database.collection("users");
   }
 
-  static async create(newUser) {
-    try {
-      const conditions = [];
+  static async create({ username, email, password }) {
+    if (!username) throw new Error("Username is required");
+    if (!email) throw new Error("Email is required");
+    if (!password) throw new Error("Password is required");
 
-      if (newUser.username) {
-        conditions.push({ username: newUser.username });
-      }
+    const user = await this.collection().findOne({
+      $or: [{ username }, { email }],
+    });
 
-      if (newUser.email) {
-        conditions.push({ email: newUser.email });
-      }
+    if (user) throw new Error("User already exists");
 
-      let existingUser = null;
-      if (conditions.length > 0) {
-        existingUser = await this.collection().findOne({ $or: conditions });
-      }
-
-      if (existingUser) throw new Error("User already exists");
-
-      if (!newUser.email.includes("@")) {
-        throw new Error("Email must be valid");
-      }
-
-      if (newUser.password.length < 5) {
-        throw new Error("Password must be at least 5 characters");
-      }
-
-      newUser.password = hashPassword(newUser.password);
-      return await this.collection().insertOne(newUser);
-    } catch (error) {
-      throw error;
+    if (!email.includes("@")) {
+      throw new Error("Email must be valid");
     }
+
+    if (password.length < 5) {
+      throw new Error("Password must be at least 5 characters");
+    }
+
+    password = hashPassword(password);
+    return await this.collection().insertOne({ username, email, password });
+  }
+
+  static async login({ username, password }) {
+    if (!username) throw new Error("Username is required");
+    if (!password) throw new Error("Password is required");
+
+    const user = await this.collection().findOne({ username });
+    if (!user) throw new Error("User not found");
+
+    const isValid = comparePassword(password, user.password);
+    if (!isValid) throw new Error("Invalid password");
+
+    const access_token = signToken({ id: user._id });
+
+    return { access_token };
   }
 
   static async findByName(name) {
