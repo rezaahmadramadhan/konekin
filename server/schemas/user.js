@@ -2,27 +2,27 @@ const User = require("../models/User");
 
 const userTypeDefs = `#graphql
     type User {
-        name: String
-        username: String!
-        email: String!
-        password: String!
+      name: String
+      username: String!
+      email: String!
+      password: String!
     }
 
     type Query {
-        users: [User]
-        usersByName(name: String): [User]
+      findUser(username: String): [User]
     }
 
     type Mutation {
-        register(name: String, username: String, email: String, password: String): String
-        login(username: String, password: String): String
+      register(name: String, username: String, email: String, password: String): String
+      login(username: String, password: String): String
     }
 `;
 
 const userResolvers = {
   Query: {
-    users: async () => {
-      const users = await User.find();
+    findUser: async (_, { username }) => {
+      const users = await User.findByName(username);
+
       return users;
     },
   },

@@ -45,16 +45,17 @@ class User {
     return { access_token };
   }
 
-  static async findByName(name) {
+  static async findByName(username) {
     const users = await this.collection()
       .find({
-        name: {
-          $regex: name,
+        username: {
+          $regex: username,
           $options: "i",
         },
       })
       .toArray();
 
+    if (users.length === 0) throw new Error("User not found");
     return users;
   }
 }
