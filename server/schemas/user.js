@@ -10,6 +10,7 @@ const userTypeDefs = `#graphql
 
     type Query {
       findUser(username: String): [User]
+      findUserById(id: ID): User
     }
 
     type Mutation {
@@ -22,8 +23,12 @@ const userResolvers = {
   Query: {
     findUser: async (_, { username }) => {
       const users = await User.findByName(username);
-
       return users;
+    },
+
+    findUserById: async (_, { id }) => {
+      const user = await User.findById(id);
+      return user;
     },
   },
 

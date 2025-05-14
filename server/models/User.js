@@ -58,6 +58,12 @@ class User {
     if (users.length === 0) throw new Error("User not found");
     return users;
   }
+
+  static async findById(id) {
+    const user = await this.collection().findOne({ _id: id });
+    if (!user) throw new Error("User not found");
+    return user;
+  }
 }
 
 module.exports = User;
