@@ -2,10 +2,15 @@ const User = require("../models/User");
 
 const userTypeDefs = `#graphql
     type User {
+      _id: ID
       name: String
       username: String!
       email: String!
       password: String!
+    }
+
+    type LoginResponse {
+      access_token: String
     }
 
     type Query {
@@ -15,7 +20,7 @@ const userTypeDefs = `#graphql
 
     type Mutation {
       register(name: String, username: String, email: String, password: String): String
-      login(username: String, password: String): String
+      login(username: String, password: String): LoginResponse
     }
 `;
 
@@ -39,8 +44,8 @@ const userResolvers = {
     },
 
     login: async (_, { username, password }) => {
-      const result = await User.login({ username, password });
-      return result.access_token;
+      const access_token = await User.login({ username, password });
+      return { access_token };
     },
   },
 };

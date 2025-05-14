@@ -27,7 +27,7 @@ class User {
     }
 
     password = hashPassword(password);
-    return await this.collection().insertOne({ username, email, password });
+    return await this.collection().insertOne({ ...user });
   }
 
   static async login({ username, password }) {
@@ -42,7 +42,7 @@ class User {
 
     const access_token = signToken({ id: user._id });
 
-    return { access_token };
+    return access_token;
   }
 
   static async findByName(username) {
