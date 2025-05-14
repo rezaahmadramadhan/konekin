@@ -5,29 +5,32 @@ const { startStandaloneServer } = require("@apollo/server/standalone");
 const { userTypeDefs, userResolvers } = require("./schemas/user");
 const { verifyToken } = require("./helpers/jwt");
 const User = require("./models/User");
+const { postTypeDefs, postResolvers } = require("./schemas/post");
 
 const server = new ApolloServer({
-  typeDefs: [userTypeDefs],
-  resolvers: [userResolvers],
+  typeDefs: [userTypeDefs, postTypeDefs],
+  resolvers: [userResolvers, postResolvers],
 });
 
 startStandaloneServer(server, {
   listen: { port: 3000 },
   context: async ({ req }) => {
-    auth: async () => {
-      const authorization = req.headers.authorization;
-      if (!authorization) throw new Error("Please login first");
+    return {
+      auth: async () => {
+        const authorization = req.headers.authorization;
+        if (!authorization) throw new Error("Please login first");
 
-      const [type, access_token] = authorization.split(" ");
-      if (type !== "Bearer") throw new Error("Invalid token");
+        const [type, access_token] = authorization.split(" ");
+        if (type !== "Bearer") throw new Error("Invalid token");
 
-      const valid = verifyToken(access_token);
-      if (!valid) throw new Error("Invalid token");
+        const valid = verifyToken(access_token);
+        if (!valid) throw new Error("Invalid token");
 
-      const user = await User.findById(valid.id);
-      if (!user) throw new Error("User not found");
+        const user = await User.findById(valid.id);
+        if (!user) throw new Error("User not found");
 
-      return user;
+        return user;
+      },
     };
   },
 }).then(({ url }) => {

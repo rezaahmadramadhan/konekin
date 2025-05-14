@@ -29,7 +29,7 @@ const postTypeDefs = `#graphql
     }
 
     type Mutation {
-      createPost(content: String, tags: [String], imgUrl: String, authorId: ID, comments: [Comment], likes: Int): Post
+      createPost(content: String, tags: [String], imgUrl: String): Post
     }
 `;
 
@@ -37,3 +37,5 @@ const postResolvers = {
   Query: {},
   Mutation: {},
 };
+
+module.exports = { postTypeDefs, postResolvers };
