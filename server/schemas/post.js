@@ -7,8 +7,16 @@ const postTypeDefs = `#graphql
       tags: [String]
       imgUrl: String
       authorId: ID
+      author: Author
       comments: [Comment]
       likes: [Like]
+    }
+
+    type Author {
+        _id: ID
+        name: String
+        username: String
+        email: String
     }
 
     type Comment {
@@ -25,8 +33,7 @@ const postTypeDefs = `#graphql
     }
 
     type Query {
-      findPostById(id: ID): Post
-      findPostsByAuthor(authorId: ID): [Post]
+      getPosts: [Post]
     }
 
     type Mutation {
@@ -35,7 +42,13 @@ const postTypeDefs = `#graphql
 `;
 
 const postResolvers = {
-  Query: {},
+  Query: {
+    getPosts: async (_, __, { auth }) => {
+      await auth();
+      const posts = await Post.getAll();
+      return posts;
+    },
+  },
   Mutation: {
     addPost: async (_, { content, tags, imgUrl }, { auth }) => {
       const user = await auth();

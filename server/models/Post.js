@@ -17,6 +17,39 @@ class Post {
 
     return await this.collection().insertOne(newPost);
   }
+
+  static async getAll() {
+    const agg = [
+      {
+        $sort: {
+          createdAt: -1,
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "authorId",
+          foreignField: "_id",
+          as: "author",
+        },
+      },
+      {
+        $unwind: {
+          path: "$author",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $project: {
+          "author.password": 0,
+        },
+      },
+    ];
+
+    const result = await this.collection().aggregate(agg).toArray();
+
+    return result;
+  }
 }
 
 module.exports = Post;
