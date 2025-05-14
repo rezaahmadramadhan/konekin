@@ -1,3 +1,4 @@
+const { ObjectId } = require("mongodb");
 const { database } = require("../config/mongodb");
 const { hashPassword, comparePassword } = require("../helpers/bcrypt");
 const { signToken } = require("../helpers/jwt");
@@ -33,8 +34,6 @@ class User {
       password: hashPassword(password),
     });
 
-    console.log(newUser);
-
     return newUser;
   }
 
@@ -53,13 +52,13 @@ class User {
     return access_token;
   }
 
-  static async findByName(username) {
+  static async findByName(search) {
     const users = await this.collection()
       .find({
-        username: {
-          $regex: username,
-          $options: "i",
-        },
+        $or: [
+          { username: { $regex: search, $options: "i" } },
+          { name: { $regex: search, $options: "i" } },
+        ],
       })
       .toArray();
 
@@ -68,7 +67,9 @@ class User {
   }
 
   static async findById(id) {
-    const user = await this.collection().findOne({ _id: id });
+    const user = await this.collection().findOne({
+      _id: new ObjectId(String(id)),
+    });
     if (!user) throw new Error("User not found");
     return user;
   }

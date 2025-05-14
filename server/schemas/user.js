@@ -26,9 +26,20 @@ const userTypeDefs = `#graphql
 
 const userResolvers = {
   Query: {
-    findUser: async (_, { username }) => {
-      const users = await User.findByName(username);
-      return users;
+    findUser: async (_, { name, username }) => {
+      if (!name && !username) {
+        throw new Error("Please provide a name or username to search");
+      }
+
+      let user;
+
+      if (name) {
+        user = await User.findByName(name);
+      } else if (username) {
+        user = await User.findByName(username);
+      }
+
+      return user;
     },
 
     findUserById: async (_, { id }) => {
