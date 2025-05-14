@@ -77,14 +77,55 @@ class Post {
         $project: {
           "author.password": 0,
         },
-      }
+      },
     ];
 
     const post = (await this.collection().aggregate(agg).toArray())[0];
-    
-    if (!post) throw new Error("Data not found");
+
+    if (!post) throw new Error("Post not found");
 
     return post;
+  }
+
+  static async likePost(postId, username) {
+    const postLiked = await this.collection().findOne({
+      _id: new ObjectId(postId),
+      "likes.username": username,
+    });
+
+    if (postLiked) {
+      await this.collection().updateOne(
+        {
+          _id: new ObjectId(postId),
+        },
+        {
+          $pull: {
+            likes: {
+              username: username,
+            },
+          },
+        }
+      );
+
+      return "unliked";
+    } else {
+      await this.collection().updateOne(
+        {
+          _id: new ObjectId(postId),
+        },
+        {
+          $push: {
+            likes: {
+              username: username,
+              createdAt: new Date(),
+              updatedAt: new Date(),
+            },
+          },
+        }
+      );
+
+      return "liked";
+    }
   }
 }
 

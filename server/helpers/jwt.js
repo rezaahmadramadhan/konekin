@@ -1,8 +1,8 @@
 const { sign, verify } = require("jsonwebtoken");
 const JWT_SECRET = process.env.JWT_SECRET;
 
-function signToken({ id }) {
-  return sign({ id }, JWT_SECRET);
+function signToken(payload) {
+  return sign(payload, JWT_SECRET);
 }
 
 function verifyToken(token) {

@@ -40,6 +40,7 @@ const postTypeDefs = `#graphql
 
     type Mutation {
       addPost(content: String, tags: [String], imgUrl: String): String
+      likePost(postId: ID): String
     }
 `;
 
@@ -53,7 +54,6 @@ const postResolvers = {
     getPostById: async (_, { id }, { auth }) => {
       await auth();
       const post = await Post.getById(id);
-      
       return post;
     },
   },
@@ -70,6 +70,18 @@ const postResolvers = {
       newPost._id = result.insertedId;
 
       return "Post created successfully";
+    },
+    likePost: async (_, { postId }, { auth }) => {
+      const user = await auth();
+      const post = await Post.collection().findOne({
+        _id: new ObjectId(postId),
+      });
+
+      if (!post) throw new Error("Post not found");
+
+      const status = await Post.likePost(postId, user.username)
+
+      return status
     },
   },
 };
