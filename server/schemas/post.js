@@ -1,3 +1,4 @@
+const { ObjectId } = require("mongodb");
 const Post = require("../models/Post");
 
 const postTypeDefs = `#graphql
@@ -34,6 +35,7 @@ const postTypeDefs = `#graphql
 
     type Query {
       getPosts: [Post]
+      getPostById(id: ID): Post
     }
 
     type Mutation {
@@ -47,6 +49,12 @@ const postResolvers = {
       await auth();
       const posts = await Post.getAll();
       return posts;
+    },
+    getPostById: async (_, { id }, { auth }) => {
+      await auth();
+      const post = await Post.getById(id);
+      
+      return post;
     },
   },
   Mutation: {

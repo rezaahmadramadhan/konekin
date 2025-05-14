@@ -1,3 +1,4 @@
+const { ObjectId } = require("mongodb");
 const { database } = require("../config/mongodb");
 
 class Post {
@@ -49,6 +50,41 @@ class Post {
     const result = await this.collection().aggregate(agg).toArray();
 
     return result;
+  }
+
+  static async getById(id) {
+    const agg = [
+      {
+        $match: {
+          _id: new ObjectId(String(id)),
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "authorId",
+          foreignField: "_id",
+          as: "author",
+        },
+      },
+      {
+        $unwind: {
+          path: "$author",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $project: {
+          "author.password": 0,
+        },
+      }
+    ];
+
+    const post = (await this.collection().aggregate(agg).toArray())[0];
+    
+    if (!post) throw new Error("Data not found");
+
+    return post;
   }
 }
 
