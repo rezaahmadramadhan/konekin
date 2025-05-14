@@ -14,7 +14,7 @@ const userTypeDefs = `#graphql
     }
 
     type Query {
-      findUser(username: String): [User]
+      findUser(name: String, username: String): [User]
       findUserById(id: ID): User
     }
 
@@ -38,8 +38,8 @@ const userResolvers = {
   },
 
   Mutation: {
-    register: async (_, { username, email, password }) => {
-      await User.create({ username, email, password });
+    register: async (_, { name, username, email, password }) => {
+      await User.create({ name, username, email, password });
       return "Register Success";
     },
 

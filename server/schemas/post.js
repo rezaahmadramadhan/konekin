@@ -2,6 +2,7 @@ const Post = require("../models/Post");
 
 const postTypeDefs = `#graphql
     type Post {
+      _id: ID
       content: String!
       tags: [String]
       imgUrl: String

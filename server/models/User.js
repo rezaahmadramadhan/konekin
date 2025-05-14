@@ -7,7 +7,7 @@ class User {
     return database.collection("users");
   }
 
-  static async create({ username, email, password }) {
+  static async create({ name, username, email, password }) {
     if (!username) throw new Error("Username is required");
     if (!email) throw new Error("Email is required");
     if (!password) throw new Error("Password is required");
@@ -26,8 +26,16 @@ class User {
       throw new Error("Password must be at least 5 characters");
     }
 
-    password = hashPassword(password);
-    return await this.collection().insertOne({ ...user });
+    const newUser = await this.collection().insertOne({
+      name,
+      username,
+      email,
+      password: hashPassword(password),
+    });
+
+    console.log(newUser);
+
+    return newUser;
   }
 
   static async login({ username, password }) {
