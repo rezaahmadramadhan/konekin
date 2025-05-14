@@ -30,13 +30,27 @@ const postTypeDefs = `#graphql
     }
 
     type Mutation {
-      createPost(content: String, tags: [String], imgUrl: String): Post
+      addPost(content: String, tags: [String], imgUrl: String): String
     }
 `;
 
 const postResolvers = {
   Query: {},
-  Mutation: {},
+  Mutation: {
+    addPost: async (_, { content, tags, imgUrl }, { auth }) => {
+      const user = await auth();
+      const newPost = {
+        content,
+        tags,
+        imgUrl,
+        authorId: user._id,
+      };
+      const result = await Post.create(newPost);
+      newPost._id = result.insertedId;
+
+      return "Post created successfully";
+    },
+  },
 };
 
 module.exports = { postTypeDefs, postResolvers };
