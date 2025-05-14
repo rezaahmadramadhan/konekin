@@ -88,6 +88,8 @@ class Post {
   }
 
   static async likePost(postId, username) {
+    if (!username) throw new Error("Username is required");
+
     const postLiked = await this.collection().findOne({
       _id: new ObjectId(postId),
       "likes.username": username,
@@ -129,6 +131,9 @@ class Post {
   }
 
   static async commentPost(postId, content, username) {
+    if (!content) throw new Error("Content is required");
+    if (!username) throw new Error("Username is required");
+
     await this.collection().updateOne(
       {
         _id: new ObjectId(postId),
