@@ -116,7 +116,7 @@ class Post {
         {
           $push: {
             likes: {
-              username: username,
+              username,
               createdAt: new Date(),
               updatedAt: new Date(),
             },
@@ -126,6 +126,28 @@ class Post {
 
       return "liked";
     }
+  }
+
+  static async commentPost(postId, content, username) {
+    await this.collection().updateOne(
+      {
+        _id: new ObjectId(postId),
+      },
+      {
+        $push: {
+          comments: {
+            content,
+            username,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          },
+        },
+      }
+    );
+
+    const post = await this.collection().findOne({ _id: new ObjectId(postId) });
+
+    return post.comments;
   }
 }
 

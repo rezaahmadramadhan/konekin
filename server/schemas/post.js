@@ -9,8 +9,8 @@ const postTypeDefs = `#graphql
       imgUrl: String
       authorId: ID
       author: Author
-      comments: [Comment]
       likes: [Like]
+      comments: [Comment]
     }
 
     type Author {
@@ -41,6 +41,7 @@ const postTypeDefs = `#graphql
     type Mutation {
       addPost(content: String, tags: [String], imgUrl: String): String
       likePost(postId: ID): String
+      commentPost(postId: ID, content: String): [Comment]
     }
 `;
 
@@ -76,12 +77,22 @@ const postResolvers = {
       const post = await Post.collection().findOne({
         _id: new ObjectId(postId),
       });
-
       if (!post) throw new Error("Post not found");
 
-      const status = await Post.likePost(postId, user.username)
+      const status = await Post.likePost(postId, user.username);
 
-      return status
+      return status;
+    },
+    commentPost: async (_, { postId, content }, { auth }) => {
+      const user = await auth();
+      const post = await Post.collection().findOne({
+        _id: new ObjectId(postId),
+      });
+      if (!post) throw new Error("Post not found");
+
+      const comments = await Post.commentPost(postId, content, user.username);
+
+      return comments;
     },
   },
 };
