@@ -1,5 +1,6 @@
 const { ObjectId } = require("mongodb");
 const { database } = require("../config/mongodb");
+const User = require("./User");
 
 class Follow {
   static collection() {

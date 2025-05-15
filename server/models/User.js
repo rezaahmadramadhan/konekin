@@ -67,9 +67,41 @@ class User {
   }
 
   static async findById(id) {
-    const user = await this.collection().findOne({
-      _id: new ObjectId(String(id)),
-    });
+    if (!id) throw new Error("Id is required");
+
+    const agg = [
+      {
+        $match: {
+          _id: new ObjectId(id),
+        },
+      },
+      {
+        $lookup: {
+          from: "follows",
+          localField: "_id",
+          foreignField: "followingId",
+          as: "followers",
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "followers.followerId",
+          foreignField: "_id",
+          as: "userFollowers",
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "followers.followingId",
+          foreignField: "_id",
+          as: "userFollowing",
+        },
+      },
+    ];
+
+    const user = (await this.collection().aggregate(agg).toArray())[0];    
     if (!user) throw new Error("User not found");
     return user;
   }

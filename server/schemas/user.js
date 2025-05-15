@@ -7,6 +7,29 @@ const userTypeDefs = `#graphql
       username: String!
       email: String!
       password: String!
+      followDetail: [FollowDetail]
+      userFollowers: [UserFollower]
+      userFollowing: [UserFollowing]
+    }
+
+    type FollowDetail {
+      _id: ID
+      followerId: ID
+      followingId: ID
+    }
+
+    type UserFollower {
+      _id: ID
+      name: String
+      username: String
+      email: String
+    }
+
+    type UserFollowing {
+      _id: ID
+      name: String
+      username: String
+      email: String
     }
 
     type LoginResponse {
@@ -44,7 +67,9 @@ const userResolvers = {
 
     findUserById: async (_, { id }) => {
       const user = await User.findById(id);
-      return user;
+      console.log(user, "ini user");
+      
+      return { user };
     },
   },
 
