@@ -9,7 +9,7 @@ const userTypeDefs = `#graphql
       password: String!
       followDetail: [FollowDetail]
       userFollowers: [UserFollower]
-      userFollowing: [UserFollowing]
+      userFollowings: [UserFollowing]
     }
 
     type FollowDetail {
@@ -68,8 +68,8 @@ const userResolvers = {
     findUserById: async (_, { id }) => {
       const user = await User.findById(id);
       console.log(user, "ini user");
-      
-      return { user };
+
+      return user;
     },
   },
 
