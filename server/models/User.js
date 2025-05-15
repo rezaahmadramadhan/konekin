@@ -93,15 +93,23 @@ class User {
       },
       {
         $lookup: {
+          from: "follows",
+          localField: "_id",
+          foreignField: "followerId",
+          as: "followings",
+        },
+      },
+      {
+        $lookup: {
           from: "users",
-          localField: "followers.followingId",
+          localField: "followings.followingId",
           foreignField: "_id",
-          as: "userFollowing",
+          as: "userFollowings",
         },
       },
     ];
 
-    const user = (await this.collection().aggregate(agg).toArray())[0];    
+    const user = (await this.collection().aggregate(agg).toArray())[0];
     if (!user) throw new Error("User not found");
     return user;
   }
