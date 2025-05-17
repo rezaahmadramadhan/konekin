@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import {
   View,
   Text,
@@ -9,18 +9,47 @@ import {
   SafeAreaView,
   KeyboardAvoidingView,
   Platform,
+  Alert,
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
+import { gql, useMutation } from "@apollo/client";
+import { AuthContext } from "../contexts/Auth";
+import { saveSecure } from "../helpers/secureStore";
+
+const LOGIN = gql`
+  mutation Login($username: String, $password: String) {
+    login(username: $username, password: $password) {
+      access_token
+    }
+  }
+`;
 
 export default function LoginScreen() {
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const navigation = useNavigation();
+  const { setIsLogin } = useContext(AuthContext);
+  const [doLogin, { loading }] = useMutation(LOGIN);
+  const handleLogin = async () => {
+    try {
+      console.log("Sending login request...");
+      const result = await doLogin({
+        variables: {
+          username,
+          password,
+        },
+      });
 
-  const handleLogin = () => {
-    console.log("Login with:", email, password);
+      const token = result.data.login.access_token;
+      if (!token) throw new Error("Invalid token from server");
+
+      await saveSecure("token", token);
+      setIsLogin(true);
+    } catch (error) {
+      Alert.alert("Login Error", error.message || "An unknown error occurred");
+    }
   };
 
   return (
@@ -47,14 +76,14 @@ export default function LoginScreen() {
           </Text>
 
           <View style={styles.inputContainer}>
-            <Text style={styles.inputLabel}>Email or Phone</Text>
+            <Text style={styles.inputLabel}>Username</Text>
             <TextInput
               style={styles.input}
-              value={email}
-              onChangeText={setEmail}
-              keyboardType="email-address"
+              value={username}
+              onChangeText={setUsername}
+              keyboardType="default"
               autoCapitalize="none"
-              placeholder="Email or Phone"
+              placeholder="username"
               autoFocus={false}
             />
           </View>
