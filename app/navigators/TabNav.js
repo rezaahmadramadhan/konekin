@@ -1,6 +1,6 @@
 import Ionicons from "@react-native-vector-icons/ionicons";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import HomeListScreen from "../screens/HomeListScreen";
+import HomeScreen from "../screens/HomeScreen";
 import ProfileScreen from "../screens/ProfileScreen";
 
 const Tab = createBottomTabNavigator();
@@ -26,7 +26,7 @@ export default function TabNav() {
     >
       <Tab.Screen
         name="HomeList"
-        component={HomeListScreen}
+        component={HomeScreen}
         options={{ headerShown: false }}
       />
       <Tab.Screen

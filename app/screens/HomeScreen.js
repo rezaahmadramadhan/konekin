@@ -1,7 +1,7 @@
 import { ScrollView, StyleSheet, View } from "react-native";
 import Card from "../components/Card";
 
-export default function HomeListScreen() {
+export default function HomeScreen() {
   const posts = [
     {
       content: `"Logic di backend? Beres.
