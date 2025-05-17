@@ -1,7 +1,7 @@
 import { ScrollView, StyleSheet, View, Text, RefreshControl, ActivityIndicator, SafeAreaView, StatusBar } from "react-native";
 import { gql, useQuery } from "@apollo/client";
 import { useState, useCallback } from "react";
-import LinkedInPost from "../components/LinkedInPost";
+import KonekInPost from "../components/KonekInPost";
 import CreatePostBar from "../components/CreatePostBar";
 
 const GET_POSTS = gql`
@@ -113,7 +113,7 @@ export default function HomeScreen({ navigation }) {
         <CreatePostBar onPress={handleCreatePost} />
         <View style={styles.feedContainer}>
           {data.getPosts.map((post, index) => (
-            <LinkedInPost key={post._id || index} post={post} />
+            <KonekInPost key={post._id || index} post={post} />
           ))}
         </View>
       </ScrollView>

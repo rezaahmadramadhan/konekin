@@ -5,7 +5,6 @@ import { Text, View, StyleSheet } from "react-native";
 
 const Tab = createBottomTabNavigator();
 
-// LinkedIn style tab icons
 const TabIcon = ({ name, focused }) => {
   let iconSymbol = "";
   let label = "";

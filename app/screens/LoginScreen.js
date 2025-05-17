@@ -118,10 +118,10 @@ export default function LoginScreen() {
 
         <View style={styles.footer}>
           <Text style={styles.footerText}>
-            New to LinkedIn?{" "}
+            New to KonekIn?
             <Text
               style={styles.signUpText}
-              onPress={() => console.log("Navigate to sign up")}
+              onPress={() => navigation.navigate("Register")}
             >
               Join now
             </Text>

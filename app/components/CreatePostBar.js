@@ -1,18 +1,41 @@
-import React from 'react';
-import { View, TextInput, TouchableOpacity, StyleSheet, Text } from 'react-native';
+import React, { useState } from 'react';
+import { View, TextInput, TouchableOpacity, StyleSheet, Text, Image } from 'react-native';
+import ProfileSidebar from './ProfileSidebar';
+import useProfile from '../hooks/useProfile';
 
 export default function CreatePostBar({ onPress }) {
+  const [sidebarVisible, setSidebarVisible] = useState(false);
+  const { user } = useProfile();
+
+  const toggleSidebar = () => {
+    setSidebarVisible(!sidebarVisible);
+  };
   return (
-    <TouchableOpacity 
-      style={styles.container}
-      onPress={onPress}
-      activeOpacity={0.8}
-    >
-      <View style={styles.profileImagePlaceholder} />
-      <View style={styles.inputContainer}>
-        <Text style={styles.placeholderText}>Start a post</Text>
-      </View>
-    </TouchableOpacity>
+    <>
+      <TouchableOpacity 
+        style={styles.container}
+        onPress={onPress}
+        activeOpacity={0.8}
+      >
+        <TouchableOpacity 
+          onPress={toggleSidebar}
+          activeOpacity={0.7}
+        >
+          <Image 
+            source={{ uri: 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user?.name || 'User') + '&background=0D8ABC&color=fff' }} 
+            style={styles.profileImagePlaceholder} 
+          />
+        </TouchableOpacity>
+        <View style={styles.inputContainer}>
+          <Text style={styles.placeholderText}>Search</Text>
+        </View>
+      </TouchableOpacity>
+
+      <ProfileSidebar 
+        isVisible={sidebarVisible} 
+        onClose={() => setSidebarVisible(false)}
+      />
+    </>
   );
 }
 
@@ -32,12 +55,10 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 1,
     elevation: 2,
-  },
-  profileImagePlaceholder: {
+  },  profileImagePlaceholder: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#ddd',
     marginRight: 10,
   },
   inputContainer: {

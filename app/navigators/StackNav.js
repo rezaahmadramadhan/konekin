@@ -1,5 +1,6 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import LoginScreen from "../screens/LoginScreen";
+import RegisterScreen from "../screens/RegisterScreen";
 import TabNav from "./TabNav";
 import DetailScreen from "../screens/DetailScreen";
 import { Image, TouchableOpacity, Text, StyleSheet } from "react-native";
@@ -29,7 +30,7 @@ export default function StackNav() {
           <Stack.Screen
             name="Home"
             options={{ 
-              title: "LinkedIn",
+              title: "KonekIn",
               headerShown: false
             }}
             component={TabNav}
@@ -50,11 +51,17 @@ export default function StackNav() {
             component={DetailScreen}
           />
         </>
-      ) : (
-        <>
+      ) : (        <>
           <Stack.Screen 
             name="Login" 
             component={LoginScreen}
+            options={{
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen 
+            name="Register" 
+            component={RegisterScreen}
             options={{
               headerShown: false,
             }}

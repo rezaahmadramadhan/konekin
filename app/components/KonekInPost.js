@@ -4,7 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import PostHeader from './PostHeader';
 import PostActions from './PostActions';
 
-export default function LinkedInPost({ post }) {
+export default function KonekInPost({ post }) {
   const navigation = useNavigation();
 
   if (!post) {
