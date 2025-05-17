@@ -9,8 +9,7 @@ export default function CreatePostBar({ onPress }) {
 
   const toggleSidebar = () => {
     setSidebarVisible(!sidebarVisible);
-  };
-  return (
+  };  return (
     <>
       <TouchableOpacity 
         style={styles.container}
@@ -25,7 +24,8 @@ export default function CreatePostBar({ onPress }) {
             source={{ uri: 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user?.name || 'User') + '&background=0D8ABC&color=fff' }} 
             style={styles.profileImagePlaceholder} 
           />
-        </TouchableOpacity>        <View style={styles.inputContainer}>
+        </TouchableOpacity>
+        <View style={styles.inputContainer}>
           <Text style={styles.placeholderText}>Search</Text>
         </View>
       </TouchableOpacity>
@@ -50,11 +50,11 @@ const styles = StyleSheet.create({
     marginHorizontal: 10,
     marginTop: 10,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
+    shadowOffset: { width: 0, height: 1 },    shadowOpacity: 0.1,
     shadowRadius: 1,
     elevation: 2,
-  },  profileImagePlaceholder: {
+  },
+  profileImagePlaceholder: {
     width: 40,
     height: 40,
     borderRadius: 20,

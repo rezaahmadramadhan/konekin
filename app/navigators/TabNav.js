@@ -5,7 +5,8 @@ import { Text, View, StyleSheet, Alert } from "react-native";
 
 const Tab = createBottomTabNavigator();
 
-const TabIcon = ({ name, focused }) => {  let iconSymbol = "";
+const TabIcon = ({ name, focused }) => {
+  let iconSymbol = "";
   let label = "";
 
   switch (name) {
@@ -72,25 +73,22 @@ export default function TabNav() {
           tabBarLabel: () => null,
         }}
       />
-      
       <Tab.Screen
         name="MyNetwork"
         component={HomeScreen}
         options={{
           tabBarIcon: ({ focused }) => <TabIcon name="network" focused={focused} />,
           tabBarLabel: () => null,
-        }}
-        listeners={{
-          tabPress: (e) => {           
+        }}        listeners={{
+          tabPress: (e) => {
             e.preventDefault();
             Alert.alert('Info', 'Network feature coming soon!');
           },
         }}
       />
-      
       <Tab.Screen
         name="Post"
-        component={HomeScreen} 
+        component={HomeScreen}
         options={{
           tabBarIcon: ({ focused }) => <TabIcon name="post" focused={focused} />,
           tabBarLabel: () => null,
@@ -102,22 +100,20 @@ export default function TabNav() {
           },
         }}
       />
-      
       <Tab.Screen
         name="Notifications"
-        component={HomeScreen} 
+        component={HomeScreen}
         options={{
           tabBarIcon: ({ focused }) => <TabIcon name="notifications" focused={focused} />,
           tabBarLabel: () => null,
         }}
         listeners={{
-          tabPress: (e) => {        
+          tabPress: (e) => {
             e.preventDefault();
             Alert.alert('Info', 'Notifications feature coming soon!');
           },
         }}
       />
-      
       <Tab.Screen
         name="Profile"
         component={ProfileScreen}

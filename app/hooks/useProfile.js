@@ -14,9 +14,9 @@ const GET_USER = gql`
   }
 `;
 
-export default function useProfile() {
-  const [userId, setUserId] = useState(null);
-    useEffect(() => {
+export default function useProfile() {  const [userId, setUserId] = useState(null);
+  
+  useEffect(() => {
     const fetchUserId = async () => {
       try {
         const token = await getValueSecure('token');

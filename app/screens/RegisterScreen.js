@@ -22,14 +22,14 @@ const REGISTER = gql`
   }
 `;
 
-export default function RegisterScreen() {
-  const [name, setName] = useState("");
+export default function RegisterScreen() {  const [name, setName] = useState("");
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const navigation = useNavigation();
   const [doRegister, { loading }] = useMutation(REGISTER);
+  
   const handleRegister = async () => {
     try {
       if (!name || !username || !email || !password) {

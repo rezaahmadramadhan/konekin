@@ -1,6 +1,7 @@
 import { ScrollView, StyleSheet, View, Text, RefreshControl, ActivityIndicator, SafeAreaView, StatusBar } from "react-native";
 import { gql, useQuery } from "@apollo/client";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
+import { useFocusEffect } from '@react-navigation/native';
 import KonekInPost from "../components/KonekInPost";
 import CreatePostBar from "../components/CreatePostBar";
 
@@ -32,7 +33,7 @@ const GET_POSTS = gql`
 
 export default function HomeScreen({ navigation }) {
   const [refreshing, setRefreshing] = useState(false);
-    const { loading, error, data, refetch } = useQuery(GET_POSTS, {
+  const { loading, error, data, refetch } = useQuery(GET_POSTS, {
     onError: (error) => {
       console.error("Apollo error details:", error);
       console.error("Network error:", error.networkError);
@@ -42,16 +43,22 @@ export default function HomeScreen({ navigation }) {
       console.error("GraphQL errors:", error.graphQLErrors);
     },
   });
-  
-  const onRefresh = useCallback(() => {
+    const onRefresh = useCallback(() => {
     setRefreshing(true);
     refetch().then(() => setRefreshing(false));
   }, [refetch]);
   
+  // Refresh data setiap kali screen difokuskan (kembali dari Detail)
+  useFocusEffect(
+    useCallback(() => {
+      refetch();
+      return () => {};
+    }, [refetch])
+  );
+  
   const handleCreatePost = () => {
     console.log("Navigate to create post screen");
   };
-
   if (loading && !refreshing)
     return (
       <SafeAreaView style={styles.container}>
@@ -62,7 +69,8 @@ export default function HomeScreen({ navigation }) {
         </View>
       </SafeAreaView>
     );
-      if (error) {
+  
+  if (error) {
     console.error("Error fetching posts:", error);
     return (
       <SafeAreaView style={styles.container}>

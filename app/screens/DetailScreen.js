@@ -12,14 +12,14 @@ import {
   FlatList,
   Alert,
 } from "react-native";
-import { useMutation, gql } from "@apollo/client";
+import { useMutation } from "@apollo/client";
 import PostHeader from "../components/PostHeader";
 import PostActions from "../components/PostActions";
 import useProfile from "../hooks/useProfile";
+import { LIKE_POST, COMMENT_POST } from "../mutations/postMutations";
 
 const formatCommentDate = (dateString) => {
   if (!dateString) return "Just now";
-
   try {
     const date = new Date(dateString);
     if (isNaN(date.getTime())) {
@@ -30,23 +30,6 @@ const formatCommentDate = (dateString) => {
     return "Just now";
   }
 };
-
-const COMMENT_POST = gql`
-  mutation CommentPost($postId: ID, $content: String) {
-    commentPost(postId: $postId, content: $content) {
-      content
-      username
-      createdAt
-      updatedAt
-    }
-  }
-`;
-
-const LIKE_POST = gql`
-  mutation LikePost($postId: ID) {
-    likePost(postId: $postId)
-  }
-`;
 
 export default function DetailScreen({ route, navigation }) {
   const { post, openComments, isLiking } = route.params || {};
@@ -66,8 +49,7 @@ export default function DetailScreen({ route, navigation }) {
         error.message || "Failed to add comment. Please try again."
       );
     },
-  });
-  const [likePost, { loading: likeLoading }] = useMutation(LIKE_POST, {
+  });  const [likePost, { loading: likeLoading }] = useMutation(LIKE_POST, {
     onCompleted: (data) => {
       const status = data.likePost;
       const currentLikes = [...(postData.likes || [])];
@@ -96,16 +78,19 @@ export default function DetailScreen({ route, navigation }) {
           ),
         });
       }
-    },
-    onError: (error) => {
+    },    onError: (error) => {
       Alert.alert(
         "Error",
         error.message || "Failed to like post. Please try again."
       );
     },
     onCompleted: () => {
+      // Ketika like operasi selesai, kembali ke layar sebelumnya jika isLiking true
       if (isLiking) {
-        navigation.goBack();
+        // Perbarui dulu state post di DetailScreen
+        setTimeout(() => {
+          navigation.goBack();
+        }, 300); // Delay sedikit untuk animasi
       }
     },
   });
@@ -171,13 +156,11 @@ export default function DetailScreen({ route, navigation }) {
     >
       <View style={styles.container}>
         <ScrollView style={styles.scrollView}>
-          {" "}
           <View style={styles.postContainer}>
             <PostHeader author={postData.author} timeAgo="1d ago" />
 
             <View style={styles.contentContainer}>
-              <Text style={styles.content}>{postData.content}</Text>
-              {postData.tags && postData.tags.length > 0 && (
+              <Text style={styles.content}>{postData.content}</Text>              {postData.tags && postData.tags.length > 0 && (
                 <View style={styles.tagsContainer}>
                   {postData.tags.map((tag, index) => (
                     <Text key={index} style={styles.tag}>
@@ -192,12 +175,10 @@ export default function DetailScreen({ route, navigation }) {
                   style={styles.image}
                   resizeMode="cover"
                 />
-              )}{" "}
+              )}
             </View>
-
             {(postData.likes?.length > 0 || comments.length > 0) && (
               <View style={styles.statsContainer}>
-                {" "}
                 {postData.likes?.length > 0 && (
                   <Text style={styles.statText}>
                     👍 {postData.likes.length}

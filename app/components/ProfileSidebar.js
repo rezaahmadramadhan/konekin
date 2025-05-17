@@ -43,7 +43,6 @@ export default function ProfileSidebar({ isVisible, onClose }) {
   };
 
   if (!isVisible) return null;
-
   return (
     <View style={styles.container}>
       <TouchableOpacity 
@@ -54,7 +53,8 @@ export default function ProfileSidebar({ isVisible, onClose }) {
       <Animated.View 
         style={[
           styles.sidebar,
-          { transform: [{ translateX: slideAnim }] }        ]}
+          { transform: [{ translateX: slideAnim }] }
+        ]}
       >
         <View style={styles.profileSection}>
           {loading ? (
@@ -114,15 +114,15 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     zIndex: 1000,
-  },
-  overlay: {
+  },  overlay: {
     position: 'absolute',
     top: 0,
     left: 0,
     right: 0,
     bottom: 0,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
-  },  sidebar: {
+  },
+  sidebar: {
     position: 'absolute',
     top: 0,
     left: 0,
@@ -152,8 +152,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 5,
-  },
-  profileUsername: {
+  },  profileUsername: {
     fontSize: 14,
     color: '#666',
     marginBottom: 5,
@@ -161,7 +160,8 @@ const styles = StyleSheet.create({
   profileEmail: {
     fontSize: 12,
     color: '#888',
-  },  errorText: {
+  },
+  errorText: {
     color: '#e74c3c',
     fontSize: 14,
     marginTop: 5,

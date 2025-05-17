@@ -5,8 +5,10 @@ export default function PostActions({ likes, comments, onLike, onComment, onShar
   const { user } = useProfile();
   const currentUsername = user?.username;
   const hasLiked = likes?.some(like => like.username === currentUsername);
+  
   return (
-    <View style={styles.actionsContainer}>      <TouchableOpacity 
+    <View style={styles.actionsContainer}>
+      <TouchableOpacity 
         style={styles.actionButton} 
         onPress={onLike}
       >
@@ -15,14 +17,16 @@ export default function PostActions({ likes, comments, onLike, onComment, onShar
           {hasLiked ? 'Liked' : 'Like'} {likes?.length > 0 ? `(${likes.length})` : ''}
         </Text>
       </TouchableOpacity>
-        <TouchableOpacity 
+      <TouchableOpacity 
         style={styles.actionButton} 
         onPress={onComment}
       >
         <Text style={styles.actionIcon}>{"💬"}</Text>
-        <Text style={styles.actionText}>Comment {comments?.length > 0 ? `(${comments.length})` : ''}</Text>
+        <Text style={styles.actionText}>
+          Comment {comments?.length > 0 ? `(${comments.length})` : ''}
+        </Text>
       </TouchableOpacity>
-        <TouchableOpacity 
+      <TouchableOpacity 
         style={styles.actionButton} 
         onPress={onShare}
       >

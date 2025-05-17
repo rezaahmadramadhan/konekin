@@ -1,34 +1,83 @@
-import React from 'react';
-import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, Image, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { useMutation } from '@apollo/client';
+import { LIKE_POST } from '../mutations/postMutations';
 import PostHeader from './PostHeader';
 import PostActions from './PostActions';
+import useProfile from '../hooks/useProfile';
 
 export default function KonekInPost({ post }) {
   const navigation = useNavigation();
-  if (!post) {
+  const { user } = useProfile();
+  const [currentPost, setCurrentPost] = useState(post);
+  
+  // Menggunakan useMutation untuk like
+  const [likePost, { loading: likeLoading }] = useMutation(LIKE_POST, {
+    onCompleted: (data) => {
+      const status = data.likePost;
+      const currentLikes = [...(currentPost.likes || [])];
+      const currentUsername = user?.username || "currentUser";
+
+      if (status === "liked") {
+        if (!currentLikes.some((like) => like.username === currentUsername)) {
+          setCurrentPost({
+            ...currentPost,
+            likes: [
+              ...currentLikes,
+              {
+                username: currentUsername,
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+              },
+            ],
+          });
+        }
+      } else if (status === "unliked") {
+        setCurrentPost({
+          ...currentPost,
+          likes: currentLikes.filter(
+            (like) => like.username !== currentUsername
+          ),
+        });
+      }
+    },
+    onError: (error) => {
+      Alert.alert(
+        "Error",
+        error.message || "Failed to like post. Please try again."
+      );
+    },
+  });
+  
+  if (!currentPost) {
     return (
       <View style={styles.errorContainer}>
         <Text style={styles.errorText}>Invalid post data</Text>
       </View>
     );
-  }
-
-  const handlePostPress = () => {
-    navigation.navigate('Detail', { post });
+  }  const handlePostPress = () => {
+    navigation.navigate('Detail', { post: currentPost });
   };
+  
   const handleLike = () => {
-    navigation.navigate('Detail', { post, isLiking: true });
+    if (likeLoading) return;
+    
+    // Melakukan like langsung tanpa pindah ke DetailScreen
+    likePost({
+      variables: {
+        postId: currentPost._id,
+      },
+    });
   };
 
   const handleComment = () => {
-    navigation.navigate('Detail', { post, openComments: true });
+    navigation.navigate('Detail', { post: currentPost, openComments: true });
   };
 
   const handleShare = () => {
-    console.log('Share post:', post._id);
+    console.log('Share post:', currentPost._id);
   };
-
   return (
     <TouchableOpacity 
       style={styles.container}
@@ -36,44 +85,44 @@ export default function KonekInPost({ post }) {
       activeOpacity={0.9}
     >
       <PostHeader 
-        author={post.author} 
+        author={currentPost.author} 
         timeAgo={"1d ago"} 
       />
       
       <View style={styles.contentContainer}>
-        <Text style={styles.content}>{post.content}</Text>
+        <Text style={styles.content}>{currentPost.content}</Text>
         
-        {post.tags && post.tags.length > 0 && (
+        {currentPost.tags && currentPost.tags.length > 0 && (
           <View style={styles.tagsContainer}>
-            {post.tags.map((tag, index) => (
+            {currentPost.tags.map((tag, index) => (
               <Text key={index} style={styles.tag}>#{tag}</Text>
             ))}
           </View>
         )}
-        
-        {post.imgUrl && (
+          {currentPost.imgUrl && (
           <Image
-            source={{ uri: post.imgUrl }}
+            source={{ uri: currentPost.imgUrl }}
             style={styles.image}
             resizeMode="cover"
           />
         )}
       </View>
-      {(post.likes?.length > 0 || post.comments?.length > 0) && (
-        <View style={styles.statsContainer}>          {post.likes?.length > 0 && (
+      {(currentPost.likes?.length > 0 || currentPost.comments?.length > 0) && (
+        <View style={styles.statsContainer}>
+          {currentPost.likes?.length > 0 && (
             <View style={styles.statItem}>
               <Text style={styles.actionIcon}>{"👍"}</Text>
-              <Text style={styles.statText}>{post.likes.length}</Text>
+              <Text style={styles.statText}>{currentPost.likes.length}</Text>
             </View>
           )}
           
-          {post.comments?.length > 0 && (
+          {currentPost.comments?.length > 0 && (
             <TouchableOpacity 
               style={styles.commentsCount}
               onPress={handleComment}
             >
               <Text style={styles.statText}>
-                {post.comments.length} comments
+                {currentPost.comments.length} comments
               </Text>
             </TouchableOpacity>
           )}
@@ -81,8 +130,8 @@ export default function KonekInPost({ post }) {
       )}
       
       <PostActions 
-        likes={post.likes}
-        comments={post.comments}
+        likes={currentPost.likes}
+        comments={currentPost.comments}
         onLike={handleLike}
         onComment={handleComment}
         onShare={handleShare}

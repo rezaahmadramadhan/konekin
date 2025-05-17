@@ -46,12 +46,12 @@ export default function StackNav() {
                 >
                   <Text style={styles.backButtonText}>←</Text>
                 </TouchableOpacity>
-              ),
-            })}
+              ),            })}
             component={DetailScreen}
           />
         </>
-      ) : (        <>
+      ) : (
+        <>
           <Stack.Screen 
             name="Login" 
             component={LoginScreen}
