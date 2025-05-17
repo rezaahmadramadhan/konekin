@@ -14,33 +14,44 @@ const GET_USER = gql`
   }
 `;
 
-export default function useProfile() {  const [userId, setUserId] = useState(null);
+export default function useProfile() {  
+  const [userId, setUserId] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
   
   useEffect(() => {
     const fetchUserId = async () => {
       try {
+        setIsLoading(true);
         const token = await getValueSecure('token');
         if (token) {
           const decoded = decodeToken(token);
           if (decoded && decoded.id) {
             setUserId(decoded.id);
+          } else {
+            console.error('Token decoded but no ID found');
           }
+        } else {
+          console.error('No token found in secure store');
         }
       } catch (error) {
         console.error('Error fetching user ID:', error);
+      } finally {
+        setIsLoading(false);
       }
     };
     
     fetchUserId();
   }, []);
-  
-  const { loading, error, data } = useQuery(GET_USER, {
+    const { loading: queryLoading, error, data } = useQuery(GET_USER, {
     variables: { id: userId },
     skip: !userId,
+    onError: (error) => {
+      console.error('Error fetching user data:', error);
+    }
   });
   
   return {
-    loading,
+    loading: isLoading || queryLoading,
     error,
     user: data?.findUserById || null,
     userId

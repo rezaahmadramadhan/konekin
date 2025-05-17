@@ -64,9 +64,9 @@ export default function HomeScreen({ navigation }) {
       };
     }, [refetch])
   );
-  
-  const handleCreatePost = () => {
+    const handleCreatePost = () => {
     console.log("Navigate to create post screen");
+    navigation.navigate('CreatePost');
   };
   if (loading && !refreshing)
     return (

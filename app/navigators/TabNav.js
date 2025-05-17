@@ -2,12 +2,14 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import HomeScreen from "../screens/HomeScreen";
 import ProfileScreen from "../screens/ProfileScreen";
 import { Text, View, StyleSheet, Alert } from "react-native";
+import { useNavigation } from "@react-navigation/native";
 
 const Tab = createBottomTabNavigator();
 
 const TabIcon = ({ name, focused }) => {
   let iconSymbol = "";
   let label = "";
+  const navigation = useNavigation();
 
   switch (name) {
     case "home":
@@ -52,6 +54,8 @@ const TabIcon = ({ name, focused }) => {
 };
 
 export default function TabNav() {
+  const navigation = useNavigation();
+
   return (
     <Tab.Navigator
       screenOptions={{
@@ -66,7 +70,7 @@ export default function TabNav() {
       }}
     >
       <Tab.Screen
-        name="HomeList"
+        name="HomeScreen"
         component={HomeScreen}
         options={{
           tabBarIcon: ({ focused }) => <TabIcon name="home" focused={focused} />,
@@ -92,11 +96,10 @@ export default function TabNav() {
         options={{
           tabBarIcon: ({ focused }) => <TabIcon name="post" focused={focused} />,
           tabBarLabel: () => null,
-        }}
-        listeners={{
+        }}        listeners={{
           tabPress: (e) => {
             e.preventDefault();
-            Alert.alert('Info', 'Post creation feature coming soon!');
+            navigation.navigate('CreatePost');
           },
         }}
       />

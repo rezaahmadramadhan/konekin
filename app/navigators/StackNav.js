@@ -3,6 +3,7 @@ import LoginScreen from "../screens/LoginScreen";
 import RegisterScreen from "../screens/RegisterScreen";
 import TabNav from "./TabNav";
 import DetailScreen from "../screens/DetailScreen";
+import CreatePostScreen from "../screens/CreatePostScreen";
 import { Image, TouchableOpacity, Text, StyleSheet } from "react-native";
 import { useContext } from "react";
 import { AuthContext } from "../contexts/Auth";
@@ -33,8 +34,7 @@ export default function StackNav() {
               title: "KonekIn",
               headerShown: false
             }}
-            component={TabNav}
-          />
+            component={TabNav}          />
           <Stack.Screen
             name="Detail"
             options={({ route, navigation }) => ({
@@ -48,6 +48,21 @@ export default function StackNav() {
                 </TouchableOpacity>
               ),            })}
             component={DetailScreen}
+          />
+          <Stack.Screen
+            name="CreatePost"
+            options={({ navigation }) => ({
+              title: "Create Post",
+              headerLeft: () => (
+                <TouchableOpacity 
+                  onPress={() => navigation.goBack()}
+                  style={styles.backButton}
+                >
+                  <Text style={styles.backButtonText}>←</Text>
+                </TouchableOpacity>
+              ),
+            })}
+            component={CreatePostScreen}
           />
         </>
       ) : (

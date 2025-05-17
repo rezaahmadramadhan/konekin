@@ -26,7 +26,7 @@ export default function CreatePostBar({ onPress }) {
           />
         </TouchableOpacity>
         <View style={styles.inputContainer}>
-          <Text style={styles.placeholderText}>Search</Text>
+          <Text style={styles.placeholderText}>What do you want to talk about?</Text>
         </View>
       </TouchableOpacity>
 
