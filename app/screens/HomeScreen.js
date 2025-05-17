@@ -32,8 +32,7 @@ const GET_POSTS = gql`
 
 export default function HomeScreen({ navigation }) {
   const [refreshing, setRefreshing] = useState(false);
-  
-  const { loading, error, data, refetch } = useQuery(GET_POSTS, {
+    const { loading, error, data, refetch } = useQuery(GET_POSTS, {
     onError: (error) => {
       console.error("Apollo error details:", error);
       console.error("Network error:", error.networkError);
@@ -41,7 +40,7 @@ export default function HomeScreen({ navigation }) {
         console.error("Network error details:", error.networkError.result);
       }
       console.error("GraphQL errors:", error.graphQLErrors);
-    }
+    },
   });
   
   const onRefresh = useCallback(() => {
@@ -63,8 +62,7 @@ export default function HomeScreen({ navigation }) {
         </View>
       </SafeAreaView>
     );
-    
-  if (error) {
+      if (error) {
     console.error("Error fetching posts:", error);
     return (
       <SafeAreaView style={styles.container}>
@@ -75,6 +73,11 @@ export default function HomeScreen({ navigation }) {
           {error.networkError && (
             <Text style={styles.errorDetails}>Network error: Check your internet connection</Text>
           )}
+          {error.graphQLErrors && error.graphQLErrors.map((gqlError, index) => (
+            <Text key={index} style={styles.errorDetails}>
+              {gqlError.message}
+            </Text>
+          ))}
         </View>
       </SafeAreaView>
     );

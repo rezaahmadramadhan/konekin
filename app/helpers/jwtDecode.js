@@ -1,6 +1,3 @@
-// A simple function to decode JWT tokens
-// This is a basic implementation that doesn't validate the token
-
 export const decodeToken = (token) => {
   try {
     const base64Url = token.split('.')[1];
@@ -19,8 +16,6 @@ export const decodeToken = (token) => {
   }
 };
 
-// In a browser environment, atob is available, but in React Native it's not
-// This is a polyfill for atob
 const atob = (input) => {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
   let str = input.replace(/=+$/, '');

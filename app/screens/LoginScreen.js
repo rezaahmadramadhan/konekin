@@ -31,8 +31,7 @@ export default function LoginScreen() {
   const [showPassword, setShowPassword] = useState(false);
   const navigation = useNavigation();
   const { setIsLogin } = useContext(AuthContext);
-  const [doLogin, { loading }] = useMutation(LOGIN);
-  const handleLogin = async () => {
+  const [doLogin, { loading }] = useMutation(LOGIN);  const handleLogin = async () => {
     try {
       console.log("Sending login request...");
       const result = await doLogin({

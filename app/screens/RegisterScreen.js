@@ -30,10 +30,8 @@ export default function RegisterScreen() {
   const [showPassword, setShowPassword] = useState(false);
   const navigation = useNavigation();
   const [doRegister, { loading }] = useMutation(REGISTER);
-
   const handleRegister = async () => {
     try {
-      // Basic validation
       if (!name || !username || !email || !password) {
         Alert.alert("Registration Error", "Please fill in all fields");
         return;
@@ -49,7 +47,6 @@ export default function RegisterScreen() {
         return;
       }
 
-      // Submit registration
       const result = await doRegister({
         variables: {
           name,

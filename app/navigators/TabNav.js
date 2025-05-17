@@ -1,7 +1,7 @@
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import HomeScreen from "../screens/HomeScreen";
 import ProfileScreen from "../screens/ProfileScreen";
-import { Text, View, StyleSheet } from "react-native";
+import { Text, View, StyleSheet, Alert } from "react-native";
 
 const Tab = createBottomTabNavigator();
 
@@ -76,51 +76,45 @@ export default function TabNav() {
       
       <Tab.Screen
         name="MyNetwork"
-        component={HomeScreen} // Placeholder - use actual screen when available
+        component={HomeScreen}
         options={{
           tabBarIcon: ({ focused }) => <TabIcon name="network" focused={focused} />,
           tabBarLabel: () => null,
         }}
         listeners={{
-          tabPress: (e) => {
-            // Prevent default action
+          tabPress: (e) => {           
             e.preventDefault();
-            // Alert instead of navigating, since this is a placeholder
-            alert('Network feature coming soon!');
+            Alert.alert('Info', 'Network feature coming soon!');
           },
         }}
       />
       
       <Tab.Screen
         name="Post"
-        component={HomeScreen} // Placeholder - use actual screen when available
+        component={HomeScreen} 
         options={{
           tabBarIcon: ({ focused }) => <TabIcon name="post" focused={focused} />,
           tabBarLabel: () => null,
         }}
         listeners={{
           tabPress: (e) => {
-            // Prevent default action
             e.preventDefault();
-            // Alert instead of navigating, since this is a placeholder
-            alert('Post creation feature coming soon!');
+            Alert.alert('Info', 'Post creation feature coming soon!');
           },
         }}
       />
       
       <Tab.Screen
         name="Notifications"
-        component={HomeScreen} // Placeholder - use actual screen when available
+        component={HomeScreen} 
         options={{
           tabBarIcon: ({ focused }) => <TabIcon name="notifications" focused={focused} />,
           tabBarLabel: () => null,
         }}
         listeners={{
-          tabPress: (e) => {
-            // Prevent default action
+          tabPress: (e) => {        
             e.preventDefault();
-            // Alert instead of navigating, since this is a placeholder
-            alert('Notifications feature coming soon!');
+            Alert.alert('Info', 'Notifications feature coming soon!');
           },
         }}
       />

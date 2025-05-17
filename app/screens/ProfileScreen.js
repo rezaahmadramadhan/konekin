@@ -1,12 +1,9 @@
-// filepath: c:\Users\rezao\Documents\hacktiv8\p3\gc01-rezaahmadramadhan\app\screens\ProfileScreen.js
-import React, { useContext } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, SafeAreaView, Image } from 'react-native';
 import { AuthContext } from '../contexts/Auth';
 import { useNavigation } from '@react-navigation/native';
 import useProfile from '../hooks/useProfile';
 import { gql, useQuery } from '@apollo/client';
 
-// Extended query for profile screen that includes followers and followings
 const GET_USER_DETAILS = gql`
   query Query($id: ID) {
     findUserById(id: $id) {
@@ -41,7 +38,6 @@ export default function ProfileScreen() {
   const handleLogout = async () => {
     try {
       await logout();
-      // Navigation will be handled by the StackNav when isLogin changes
     } catch (error) {
       console.error('Error during logout:', error);
     }
@@ -61,6 +57,11 @@ export default function ProfileScreen() {
       <SafeAreaView style={styles.errorContainer}>
         <Text style={styles.errorTitle}>Error loading profile</Text>
         <Text style={styles.errorMessage}>{error.message}</Text>
+        {error.graphQLErrors && error.graphQLErrors.map((gqlError, index) => (
+          <Text key={index} style={styles.errorMessage}>
+            {gqlError.message}
+          </Text>
+        ))}
         <TouchableOpacity 
           style={styles.logoutButton}
           onPress={handleLogout}
@@ -71,7 +72,6 @@ export default function ProfileScreen() {
     );
   }
   
-  // If we don't have data yet, show a placeholder profile
   const user = data?.findUserById || {
     name: 'User Profile',
     username: 'username',

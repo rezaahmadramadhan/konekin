@@ -54,8 +54,8 @@ export default function ProfileSidebar({ isVisible, onClose }) {
       <Animated.View 
         style={[
           styles.sidebar,
-          { transform: [{ translateX: slideAnim }] }
-        ]}      >
+          { transform: [{ translateX: slideAnim }] }        ]}
+      >
         <View style={styles.profileSection}>
           {loading ? (
             <View>
@@ -65,6 +65,7 @@ export default function ProfileSidebar({ isVisible, onClose }) {
           ) : error ? (
             <View>
               <Text style={styles.errorText}>Error loading profile</Text>
+              <Text style={styles.errorDetails}>{error.message}</Text>
               <View style={styles.profileImage} />
             </View>
           ) : (
@@ -160,11 +161,16 @@ const styles = StyleSheet.create({
   profileEmail: {
     fontSize: 12,
     color: '#888',
-  },
-  errorText: {
+  },  errorText: {
     color: '#e74c3c',
     fontSize: 14,
     marginTop: 5,
+    marginBottom: 3,
+  },
+  errorDetails: {
+    color: '#e74c3c',
+    fontSize: 12,
+    marginBottom: 5,
   },
   menuSection: {
     borderTopWidth: 1,

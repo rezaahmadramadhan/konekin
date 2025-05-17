@@ -15,14 +15,13 @@ import {
 import { useMutation, gql } from "@apollo/client";
 import PostHeader from "../components/PostHeader";
 import PostActions from "../components/PostActions";
+import useProfile from "../hooks/useProfile";
 
-// Safe date formatting helper
 const formatCommentDate = (dateString) => {
   if (!dateString) return "Just now";
 
   try {
     const date = new Date(dateString);
-    // Check if date is valid
     if (isNaN(date.getTime())) {
       return "Just now";
     }
@@ -43,15 +42,21 @@ const COMMENT_POST = gql`
   }
 `;
 
+const LIKE_POST = gql`
+  mutation LikePost($postId: ID) {
+    likePost(postId: $postId)
+  }
+`;
+
 export default function DetailScreen({ route, navigation }) {
-  const { post, openComments } = route.params || {};
+  const { post, openComments, isLiking } = route.params || {};
   const [comment, setComment] = useState("");
   const [comments, setComments] = useState(post?.comments || []);
+  const [postData, setPostData] = useState(post || {});
   const commentInputRef = useRef(null);
-
+  const { user } = useProfile();
   const [commentPost, { loading: commentLoading }] = useMutation(COMMENT_POST, {
     onCompleted: (data) => {
-      // Update local state with server response
       setComments(data.commentPost);
       setComment("");
     },
@@ -62,32 +67,82 @@ export default function DetailScreen({ route, navigation }) {
       );
     },
   });
+  const [likePost, { loading: likeLoading }] = useMutation(LIKE_POST, {
+    onCompleted: (data) => {
+      const status = data.likePost;
+      const currentLikes = [...(postData.likes || [])];
+      
+      const currentUsername = user?.username || "currentUser";
+      
+      if (status === "liked") {
+        if (!currentLikes.some(like => like.username === currentUsername)) {
+          setPostData({
+            ...postData,
+            likes: [...currentLikes, { 
+              username: currentUsername,
+              createdAt: new Date().toISOString(),
+              updatedAt: new Date().toISOString()
+            }]
+          });
+        }
+      } else if (status === "unliked") {
+        setPostData({
+          ...postData,
+          likes: currentLikes.filter(like => like.username !== currentUsername)
+        });      }
+    },
+    onError: (error) => {
+      Alert.alert(
+        "Error",
+        error.message || "Failed to like post. Please try again."
+      );
+    },
+    onCompleted: () => {
+      if (isLiking) {
+        navigation.goBack();
+      }
+    }
+  });
   React.useEffect(() => {
     if (openComments && commentInputRef.current) {
       setTimeout(() => {
         commentInputRef.current.focus();
       }, 500);
     }
-  }, [openComments]);
+    
+    if (isLiking) {
+      handleLikePost();
+    }
+  }, [openComments, isLiking]);
 
-  if (!post) {
+  if (!postData) {
     return (
       <View style={styles.container}>
         <Text style={styles.errorText}>Post not found</Text>
       </View>
     );
-  }
+  }  
+  
   const handleSendComment = () => {
     if (!comment.trim()) return;
 
     commentPost({
       variables: {
-        postId: post._id,
+        postId: postData._id,
         content: comment,
       },
     });
 
     setComment("");
+  };
+    const handleLikePost = () => {
+    if (likeLoading) return;
+    
+    likePost({
+      variables: {
+        postId: postData._id,
+      },
+    });
   };
   const renderComment = ({ item, index }) => (
     <View style={styles.commentItem} key={item.id || `comment-${index}`}>
@@ -109,16 +164,15 @@ export default function DetailScreen({ route, navigation }) {
       keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
     >
       <View style={styles.container}>
-        <ScrollView style={styles.scrollView}>
-          <View style={styles.postContainer}>
-            <PostHeader author={post.author} timeAgo="1d ago" />
+        <ScrollView style={styles.scrollView}>          <View style={styles.postContainer}>
+            <PostHeader author={postData.author} timeAgo="1d ago" />
 
             <View style={styles.contentContainer}>
-              <Text style={styles.content}>{post.content}</Text>
+              <Text style={styles.content}>{postData.content}</Text>
 
-              {post.tags && post.tags.length > 0 && (
+              {postData.tags && postData.tags.length > 0 && (
                 <View style={styles.tagsContainer}>
-                  {post.tags.map((tag, index) => (
+                  {postData.tags.map((tag, index) => (
                     <Text key={index} style={styles.tag}>
                       #{tag}
                     </Text>
@@ -126,19 +180,18 @@ export default function DetailScreen({ route, navigation }) {
                 </View>
               )}
 
-              {post.imgUrl && (
+              {postData.imgUrl && (
                 <Image
-                  source={{ uri: post.imgUrl }}
+                  source={{ uri: postData.imgUrl }}
                   style={styles.image}
                   resizeMode="cover"
                 />
-              )}
-            </View>
+              )}            </View>
 
-            {(post.likes?.length > 0 || comments.length > 0) && (
+            {(postData.likes?.length > 0 || comments.length > 0) && (
               <View style={styles.statsContainer}>
-                {post.likes?.length > 0 && (
-                  <Text style={styles.statText}>👍 {post.likes.length}</Text>
+                {postData.likes?.length > 0 && (
+                  <Text style={styles.statText}>👍 {postData.likes.length}</Text>
                 )}
 
                 {comments.length > 0 && (
@@ -150,9 +203,9 @@ export default function DetailScreen({ route, navigation }) {
             )}
 
             <PostActions
-              likes={post.likes}
+              likes={postData.likes}
               comments={comments}
-              onLike={() => console.log("Like")}
+              onLike={handleLikePost}
               onComment={() => commentInputRef.current?.focus()}
               onShare={() => console.log("Share")}
             />

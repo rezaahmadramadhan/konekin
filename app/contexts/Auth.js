@@ -11,7 +11,6 @@ export default function AuthProvider({ children }) {
     const token = await getValueSecure("token");
     if (token) setIsLogin(true);
   };
-
   const logout = async () => {
     try {
       await deleteValueSecure("token");

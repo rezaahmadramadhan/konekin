@@ -1,22 +1,27 @@
-import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import useProfile from '../hooks/useProfile';
 
 export default function PostActions({ likes, comments, onLike, onComment, onShare }) {
+  const { user } = useProfile();
+  const currentUsername = user?.username;
+  const hasLiked = likes?.some(like => like.username === currentUsername);
   return (
     <View style={styles.actionsContainer}>
       <TouchableOpacity 
         style={styles.actionButton} 
         onPress={onLike}
       >
-        <Text style={styles.actionIcon}>👍</Text>
-        <Text style={styles.actionText}>Like {likes?.length > 0 ? `(${likes.length})` : ''}</Text>
+        <Text style={styles.actionIcon}>{"👍"}</Text>
+        <Text style={[styles.actionText, hasLiked && styles.likedText]}>
+          {hasLiked ? 'Liked' : 'Like'} {likes?.length > 0 ? `(${likes.length})` : ''}
+        </Text>
       </TouchableOpacity>
       
       <TouchableOpacity 
         style={styles.actionButton} 
         onPress={onComment}
       >
-        <Text style={styles.actionIcon}>💬</Text>
+        <Text style={styles.actionIcon}>{"💬"}</Text>
         <Text style={styles.actionText}>Comment {comments?.length > 0 ? `(${comments.length})` : ''}</Text>
       </TouchableOpacity>
       
@@ -24,7 +29,7 @@ export default function PostActions({ likes, comments, onLike, onComment, onShar
         style={styles.actionButton} 
         onPress={onShare}
       >
-        <Text style={styles.actionIcon}>↗️</Text>
+        <Text style={styles.actionIcon}>{"↗️"}</Text>
         <Text style={styles.actionText}>Share</Text>
       </TouchableOpacity>
     </View>
@@ -53,5 +58,9 @@ const styles = StyleSheet.create({
   actionText: {
     color: '#555',
     fontSize: 13,
+  },
+  likedText: {
+    color: '#0077b5',
+    fontWeight: 'bold',
   },
 });

@@ -6,11 +6,10 @@ import PostActions from './PostActions';
 
 export default function KonekInPost({ post }) {
   const navigation = useNavigation();
-
   if (!post) {
     return (
       <View style={styles.errorContainer}>
-        <Text>Invalid post data</Text>
+        <Text style={styles.errorText}>Invalid post data</Text>
       </View>
     );
   }
@@ -18,9 +17,8 @@ export default function KonekInPost({ post }) {
   const handlePostPress = () => {
     navigation.navigate('Detail', { post });
   };
-
   const handleLike = () => {
-    console.log('Like post:', post._id);
+    navigation.navigate('Detail', { post, isLiking: true });
   };
 
   const handleComment = () => {
@@ -39,7 +37,7 @@ export default function KonekInPost({ post }) {
     >
       <PostHeader 
         author={post.author} 
-        timeAgo="1d ago" 
+        timeAgo={"1d ago"} 
       />
       
       <View style={styles.contentContainer}>
@@ -61,12 +59,11 @@ export default function KonekInPost({ post }) {
           />
         )}
       </View>
-      
       {(post.likes?.length > 0 || post.comments?.length > 0) && (
         <View style={styles.statsContainer}>
           {post.likes?.length > 0 && (
             <View style={styles.statItem}>
-              <Text style={styles.actionIcon}>👍</Text>
+              <Text style={styles.actionIcon}>{"👍"}</Text>
               <Text style={styles.statText}>{post.likes.length}</Text>
             </View>
           )}
@@ -107,13 +104,16 @@ const styles = StyleSheet.create({
     shadowRadius: 1,
     elevation: 2,
     overflow: 'hidden',
-  },
-  errorContainer: {
+  },  errorContainer: {
     padding: 16,
     backgroundColor: '#ffeeee',
     borderRadius: 8,
     marginHorizontal: 10,
     marginBottom: 10,
+  },
+  errorText: {
+    color: '#e74c3c',
+    fontSize: 14,
   },
   contentContainer: {
     paddingHorizontal: 15,

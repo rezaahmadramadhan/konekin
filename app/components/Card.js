@@ -8,7 +8,6 @@ export default function Card({ post }) {
     navigate('Detail', { post });
   };
 
-  // Check if post is valid and has all required fields
   if (!post) {
     return (
       <View style={{ padding: 16 }}>
