@@ -65,16 +65,51 @@ const postResolvers = {
       const post = await Post.getById(id);
       return post;
     },
-  },
-  Mutation: {
+  },  Mutation: {
     addPost: async (_, { content, tags, imgUrl }, { auth }) => {
       const user = await auth();
+      let processedTags = tags;
+      
+      if (tags && tags.length > 0) {
+        if (tags.length === 1 && typeof tags[0] === 'string') {
+          const tagString = tags[0];
+          let splitTags = [];
+          
+          const spaceSplit = tagString.split(/\s+/);
+            spaceSplit.forEach(item => {
+            if (item.includes('#')) {
+              if (item.startsWith('#')) {
+                splitTags.push(item.trim());
+              } else {
+                const parts = item.split('#');
+                if (parts[0].trim()) {
+                  splitTags.push(parts[0].trim());
+                }
+                
+                for (let i = 1; i < parts.length; i++) {
+                  if (parts[i].trim()) {
+                    splitTags.push('#' + parts[i].trim());
+                  }
+                }
+              }
+            } else if (item.trim()) {
+              splitTags.push(item.trim());
+            }
+          });
+          
+          processedTags = splitTags;
+        }
+      }
+      
       const newPost = {
         content,
-        tags,
+        tags: processedTags,
         imgUrl,
         authorId: user._id,
       };
+
+      console.log("newPost", newPost);
+      
       const result = await Post.create(newPost);
       newPost._id = result.insertedId;
 
