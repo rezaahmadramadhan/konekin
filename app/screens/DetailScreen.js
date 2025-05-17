@@ -1,26 +1,67 @@
-import React, { useState, useRef } from 'react';
-import { 
-  View, 
-  Text, 
-  StyleSheet, 
-  ScrollView, 
-  Image, 
+import React, { useState, useRef } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  Image,
   TextInput,
-  TouchableOpacity, 
+  TouchableOpacity,
   KeyboardAvoidingView,
   Platform,
-  FlatList
-} from 'react-native';
-import PostHeader from '../components/PostHeader';
-import PostActions from '../components/PostActions';
+  FlatList,
+  Alert,
+} from "react-native";
+import { useMutation, gql } from "@apollo/client";
+import PostHeader from "../components/PostHeader";
+import PostActions from "../components/PostActions";
+
+// Safe date formatting helper
+const formatCommentDate = (dateString) => {
+  if (!dateString) return "Just now";
+
+  try {
+    const date = new Date(dateString);
+    // Check if date is valid
+    if (isNaN(date.getTime())) {
+      return "Just now";
+    }
+    return date.toLocaleDateString();
+  } catch (error) {
+    return "Just now";
+  }
+};
+
+const COMMENT_POST = gql`
+  mutation CommentPost($postId: ID, $content: String) {
+    commentPost(postId: $postId, content: $content) {
+      content
+      username
+      createdAt
+      updatedAt
+    }
+  }
+`;
 
 export default function DetailScreen({ route, navigation }) {
   const { post, openComments } = route.params || {};
-  const [comment, setComment] = useState('');
+  const [comment, setComment] = useState("");
   const [comments, setComments] = useState(post?.comments || []);
   const commentInputRef = useRef(null);
-  
-  // Focus on comment input if openComments is true
+
+  const [commentPost, { loading: commentLoading }] = useMutation(COMMENT_POST, {
+    onCompleted: (data) => {
+      // Update local state with server response
+      setComments(data.commentPost);
+      setComment("");
+    },
+    onError: (error) => {
+      Alert.alert(
+        "Error",
+        error.message || "Failed to add comment. Please try again."
+      );
+    },
+  });
   React.useEffect(() => {
     if (openComments && commentInputRef.current) {
       setTimeout(() => {
@@ -28,7 +69,7 @@ export default function DetailScreen({ route, navigation }) {
       }, 500);
     }
   }, [openComments]);
-  
+
   if (!post) {
     return (
       <View style={styles.container}>
@@ -36,61 +77,55 @@ export default function DetailScreen({ route, navigation }) {
       </View>
     );
   }
-  
   const handleSendComment = () => {
     if (!comment.trim()) return;
-    
-    // In a real app, you would send this to your API
-    const newComment = {
-      id: Date.now().toString(),
-      username: 'Current User', // Replace with actual current user
-      content: comment,
-      createdAt: new Date().toISOString(),
-    };
-    
-    // Update local state
-    setComments([...comments, newComment]);
-    setComment('');
+
+    commentPost({
+      variables: {
+        postId: post._id,
+        content: comment,
+      },
+    });
+
+    setComment("");
   };
-  
-  const renderComment = ({ item }) => (
-    <View style={styles.commentItem}>
+  const renderComment = ({ item, index }) => (
+    <View style={styles.commentItem} key={item.id || `comment-${index}`}>
       <View style={styles.commentAuthorImage} />
       <View style={styles.commentContent}>
-        <Text style={styles.commentAuthor}>{item.username}</Text>
+        <Text style={styles.commentAuthor}>{item.username || "Anonymous"}</Text>
         <Text style={styles.commentText}>{item.content}</Text>
         <Text style={styles.commentTime}>
-          {new Date(item.createdAt).toLocaleDateString()}
+          {formatCommentDate(item.createdAt)}
         </Text>
       </View>
     </View>
   );
-  
+
   return (
-    <KeyboardAvoidingView 
+    <KeyboardAvoidingView
       style={{ flex: 1 }}
-      behavior={Platform.OS === 'ios' ? 'padding' : null}
-      keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
+      behavior={Platform.OS === "ios" ? "padding" : null}
+      keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
     >
       <View style={styles.container}>
         <ScrollView style={styles.scrollView}>
           <View style={styles.postContainer}>
-            <PostHeader 
-              author={post.author} 
-              timeAgo="1d ago" 
-            />
-            
+            <PostHeader author={post.author} timeAgo="1d ago" />
+
             <View style={styles.contentContainer}>
               <Text style={styles.content}>{post.content}</Text>
-              
+
               {post.tags && post.tags.length > 0 && (
                 <View style={styles.tagsContainer}>
                   {post.tags.map((tag, index) => (
-                    <Text key={index} style={styles.tag}>#{tag}</Text>
+                    <Text key={index} style={styles.tag}>
+                      #{tag}
+                    </Text>
                   ))}
                 </View>
               )}
-              
+
               {post.imgUrl && (
                 <Image
                   source={{ uri: post.imgUrl }}
@@ -99,15 +134,13 @@ export default function DetailScreen({ route, navigation }) {
                 />
               )}
             </View>
-            
+
             {(post.likes?.length > 0 || comments.length > 0) && (
               <View style={styles.statsContainer}>
                 {post.likes?.length > 0 && (
-                  <Text style={styles.statText}>
-                    👍 {post.likes.length}
-                  </Text>
+                  <Text style={styles.statText}>👍 {post.likes.length}</Text>
                 )}
-                
+
                 {comments.length > 0 && (
                   <Text style={styles.statText}>
                     {comments.length} comments
@@ -115,33 +148,32 @@ export default function DetailScreen({ route, navigation }) {
                 )}
               </View>
             )}
-            
-            <PostActions 
+
+            <PostActions
               likes={post.likes}
               comments={comments}
-              onLike={() => console.log('Like')}
+              onLike={() => console.log("Like")}
               onComment={() => commentInputRef.current?.focus()}
-              onShare={() => console.log('Share')}
+              onShare={() => console.log("Share")}
             />
           </View>
-          
+
           <View style={styles.commentsSection}>
             <Text style={styles.commentsHeader}>Comments</Text>
-            
             {comments.length === 0 ? (
-              <Text style={styles.noCommentsText}>No comments yet. Be the first to comment!</Text>
+              <Text style={styles.noCommentsText}>
+                No comments yet. Be the first to comment!
+              </Text>
             ) : (
               <FlatList
                 data={comments}
                 renderItem={renderComment}
-                keyExtractor={(item, index) => item.id || index.toString()}
+                keyExtractor={(item, index) => item.id || `comment-${index}`}
                 scrollEnabled={false}
               />
             )}
           </View>
         </ScrollView>
-        
-        {/* Comment input section */}
         <View style={styles.commentInputContainer}>
           <View style={styles.inputWrapper}>
             <TextInput
@@ -153,15 +185,17 @@ export default function DetailScreen({ route, navigation }) {
               multiline
             />
           </View>
-          <TouchableOpacity 
+          <TouchableOpacity
             style={[
-              styles.sendButton, 
-              !comment.trim() && styles.sendButtonDisabled
-            ]} 
+              styles.sendButton,
+              (!comment.trim() || commentLoading) && styles.sendButtonDisabled,
+            ]}
             onPress={handleSendComment}
-            disabled={!comment.trim()}
+            disabled={!comment.trim() || commentLoading}
           >
-            <Text style={styles.sendButtonText}>Send</Text>
+            <Text style={styles.sendButtonText}>
+              {commentLoading ? "Sending..." : "Send"}
+            </Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -172,19 +206,19 @@ export default function DetailScreen({ route, navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: "#f5f5f5",
   },
   scrollView: {
     flex: 1,
   },
   errorText: {
     fontSize: 16,
-    color: 'red',
-    textAlign: 'center',
+    color: "red",
+    textAlign: "center",
     marginTop: 20,
   },
   postContainer: {
-    backgroundColor: 'white',
+    backgroundColor: "white",
     padding: 15,
     marginBottom: 10,
   },
@@ -196,68 +230,68 @@ const styles = StyleSheet.create({
     lineHeight: 24,
   },
   tagsContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+    flexDirection: "row",
+    flexWrap: "wrap",
     marginTop: 10,
   },
   tag: {
-    color: '#0077b5',
+    color: "#0077b5",
     marginRight: 8,
     fontSize: 14,
   },
   image: {
-    width: '100%',
+    width: "100%",
     height: 300,
     marginTop: 15,
     borderRadius: 8,
   },
   statsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
     paddingVertical: 10,
     borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
+    borderBottomColor: "#e0e0e0",
     marginBottom: 5,
   },
   statText: {
-    color: '#666',
+    color: "#666",
     fontSize: 14,
   },
   commentsSection: {
-    backgroundColor: 'white',
+    backgroundColor: "white",
     padding: 15,
     paddingBottom: 30,
   },
   commentsHeader: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 15,
   },
   noCommentsText: {
-    color: '#777',
-    textAlign: 'center',
+    color: "#777",
+    textAlign: "center",
     marginTop: 10,
-    fontStyle: 'italic',
+    fontStyle: "italic",
   },
   commentItem: {
-    flexDirection: 'row',
+    flexDirection: "row",
     marginBottom: 15,
   },
   commentAuthorImage: {
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: '#ddd',
+    backgroundColor: "#ddd",
     marginRight: 10,
   },
   commentContent: {
     flex: 1,
-    backgroundColor: '#f1f1f1',
+    backgroundColor: "#f1f1f1",
     padding: 10,
     borderRadius: 12,
   },
   commentAuthor: {
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 3,
   },
   commentText: {
@@ -266,26 +300,26 @@ const styles = StyleSheet.create({
   },
   commentTime: {
     fontSize: 12,
-    color: '#777',
+    color: "#777",
     marginTop: 5,
-    alignSelf: 'flex-end',
+    alignSelf: "flex-end",
   },
   commentInputContainer: {
-    flexDirection: 'row',
+    flexDirection: "row",
     padding: 10,
-    backgroundColor: 'white',
+    backgroundColor: "white",
     borderTopWidth: 1,
-    borderTopColor: '#e0e0e0',
-    alignItems: 'center',
+    borderTopColor: "#e0e0e0",
+    alignItems: "center",
   },
   inputWrapper: {
     flex: 1,
-    backgroundColor: '#f1f1f1',
+    backgroundColor: "#f1f1f1",
     borderRadius: 20,
     marginRight: 10,
     minHeight: 40,
     maxHeight: 100,
-    justifyContent: 'center',
+    justifyContent: "center",
   },
   commentInput: {
     paddingHorizontal: 15,
@@ -294,16 +328,16 @@ const styles = StyleSheet.create({
     fontSize: 15,
   },
   sendButton: {
-    backgroundColor: '#0077b5',
+    backgroundColor: "#0077b5",
     paddingVertical: 8,
     paddingHorizontal: 15,
     borderRadius: 20,
   },
   sendButtonDisabled: {
-    backgroundColor: '#cccccc',
+    backgroundColor: "#cccccc",
   },
   sendButtonText: {
-    color: 'white',
-    fontWeight: 'bold',
+    color: "white",
+    fontWeight: "bold",
   },
 });

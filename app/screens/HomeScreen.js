@@ -50,9 +50,7 @@ export default function HomeScreen({ navigation }) {
   }, [refetch]);
   
   const handleCreatePost = () => {
-    // Here you would navigate to a create post screen
     console.log("Navigate to create post screen");
-    // For example: navigation.navigate('CreatePost');
   };
 
   if (loading && !refreshing)
