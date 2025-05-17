@@ -12,11 +12,26 @@ import {
   FlatList,
   Alert,
 } from "react-native";
-import { useMutation } from "@apollo/client";
+import { gql, useMutation } from "@apollo/client";
 import PostHeader from "../components/PostHeader";
 import PostActions from "../components/PostActions";
 import useProfile from "../hooks/useProfile";
-import { LIKE_POST, COMMENT_POST } from "../mutations/postMutations";
+const LIKE_POST = gql`
+  mutation LikePost($postId: ID) {
+    likePost(postId: $postId)
+  }
+`;
+
+const COMMENT_POST = gql`
+  mutation CommentPost($postId: ID, $content: String) {
+    commentPost(postId: $postId, content: $content) {
+      content
+      username
+      createdAt
+      updatedAt
+    }
+  }
+`;
 
 const formatCommentDate = (dateString) => {
   if (!dateString) return "Just now";

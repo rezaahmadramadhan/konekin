@@ -1,24 +1,38 @@
-import React, { useState } from 'react';
-import { View, Text, Image, StyleSheet, TouchableOpacity, Alert } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import { useMutation } from '@apollo/client';
-import { LIKE_POST } from '../mutations/postMutations';
-import PostHeader from './PostHeader';
-import PostActions from './PostActions';
-import useProfile from '../hooks/useProfile';
+import React, { useState } from "react";
+import {
+  View,
+  Text,
+  Image,
+  StyleSheet,
+  TouchableOpacity,
+  Alert,
+} from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import { gql, useMutation } from "@apollo/client";
+import PostHeader from "./PostHeader";
+import PostActions from "./PostActions";
+import useProfile from "../hooks/useProfile";
 
 export default function KonekInPost({ post }) {
   const navigation = useNavigation();
   const { user } = useProfile();
   const [currentPost, setCurrentPost] = useState(post);
-  
-  // Update local state when props change
+  const LIKE_POST = gql`
+    mutation LikePost($postId: ID) {
+      likePost(postId: $postId)
+    }
+  `;
+
   React.useEffect(() => {
-    if (post && post._id === currentPost._id && JSON.stringify(post) !== JSON.stringify(currentPost)) {
+    if (
+      post &&
+      post._id === currentPost._id &&
+      JSON.stringify(post) !== JSON.stringify(currentPost)
+    ) {
       setCurrentPost(post);
     }
   }, [post]);
-    // Menggunakan useMutation untuk like
+  // Menggunakan useMutation untuk like
   const [likePost, { loading: likeLoading }] = useMutation(LIKE_POST, {
     onCompleted: (data) => {
       const status = data.likePost;
@@ -60,26 +74,26 @@ export default function KonekInPost({ post }) {
         fields: {
           getPosts: (existingPosts = []) => {
             return existingPosts;
-          }
-        }
+          },
+        },
       });
-    }
+    },
   });
-    if (!currentPost) {
+  if (!currentPost) {
     return (
       <View style={styles.errorContainer}>
         <Text style={styles.errorText}>Invalid post data</Text>
       </View>
     );
   }
-  
+
   const handlePostPress = () => {
-    navigation.navigate('Detail', { post: currentPost });
+    navigation.navigate("Detail", { post: currentPost });
   };
-  
+
   const handleLike = () => {
     if (likeLoading) return;
-    
+
     // Melakukan like langsung tanpa pindah ke DetailScreen
     likePost({
       variables: {
@@ -89,34 +103,33 @@ export default function KonekInPost({ post }) {
   };
 
   const handleComment = () => {
-    navigation.navigate('Detail', { post: currentPost, openComments: true });
+    navigation.navigate("Detail", { post: currentPost, openComments: true });
   };
 
   const handleShare = () => {
-    console.log('Share post:', currentPost._id);
+    console.log("Share post:", currentPost._id);
   };
   return (
-    <TouchableOpacity 
+    <TouchableOpacity
       style={styles.container}
       onPress={handlePostPress}
       activeOpacity={0.9}
     >
-      <PostHeader 
-        author={currentPost.author} 
-        timeAgo={"1d ago"} 
-      />
-      
+      <PostHeader author={currentPost.author} timeAgo={"1d ago"} />
+
       <View style={styles.contentContainer}>
         <Text style={styles.content}>{currentPost.content}</Text>
-        
+
         {currentPost.tags && currentPost.tags.length > 0 && (
           <View style={styles.tagsContainer}>
             {currentPost.tags.map((tag, index) => (
-              <Text key={index} style={styles.tag}>{tag}</Text>
+              <Text key={index} style={styles.tag}>
+                {tag}
+              </Text>
             ))}
           </View>
         )}
-          {currentPost.imgUrl && (
+        {currentPost.imgUrl && (
           <Image
             source={{ uri: currentPost.imgUrl }}
             style={styles.image}
@@ -132,9 +145,9 @@ export default function KonekInPost({ post }) {
               <Text style={styles.statText}>{currentPost.likes.length}</Text>
             </View>
           )}
-          
+
           {currentPost.comments?.length > 0 && (
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.commentsCount}
               onPress={handleComment}
             >
@@ -145,8 +158,8 @@ export default function KonekInPost({ post }) {
           )}
         </View>
       )}
-      
-      <PostActions 
+
+      <PostActions
         likes={currentPost.likes}
         comments={currentPost.comments}
         onLike={handleLike}
@@ -159,25 +172,26 @@ export default function KonekInPost({ post }) {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: 'white',
+    backgroundColor: "white",
     borderRadius: 8,
     marginHorizontal: 10,
     marginBottom: 10,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 1,
     elevation: 2,
-    overflow: 'hidden',
-  },  errorContainer: {
+    overflow: "hidden",
+  },
+  errorContainer: {
     padding: 16,
-    backgroundColor: '#ffeeee',
+    backgroundColor: "#ffeeee",
     borderRadius: 8,
     marginHorizontal: 10,
     marginBottom: 10,
   },
   errorText: {
-    color: '#e74c3c',
+    color: "#e74c3c",
     fontSize: 14,
   },
   contentContainer: {
@@ -189,39 +203,39 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   tagsContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+    flexDirection: "row",
+    flexWrap: "wrap",
     marginBottom: 10,
   },
   tag: {
-    color: '#0077b5',
+    color: "#0077b5",
     marginRight: 5,
     fontSize: 14,
   },
   image: {
-    width: '100%',
+    width: "100%",
     height: 250,
     marginTop: 5,
     borderRadius: 4,
   },
   statsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
     paddingHorizontal: 15,
     paddingVertical: 8,
     borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
+    borderBottomColor: "#e0e0e0",
   },
   statItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
   },
   actionIcon: {
     fontSize: 14,
     marginRight: 5,
   },
   statText: {
-    color: '#666',
+    color: "#666",
     fontSize: 13,
   },
   commentsCount: {
