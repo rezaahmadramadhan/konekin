@@ -60,8 +60,7 @@ export default function KonekInPost({ post }) {
         )}
       </View>
       {(post.likes?.length > 0 || post.comments?.length > 0) && (
-        <View style={styles.statsContainer}>
-          {post.likes?.length > 0 && (
+        <View style={styles.statsContainer}>          {post.likes?.length > 0 && (
             <View style={styles.statItem}>
               <Text style={styles.actionIcon}>{"👍"}</Text>
               <Text style={styles.statText}>{post.likes.length}</Text>

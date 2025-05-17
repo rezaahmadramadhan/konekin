@@ -71,25 +71,31 @@ export default function DetailScreen({ route, navigation }) {
     onCompleted: (data) => {
       const status = data.likePost;
       const currentLikes = [...(postData.likes || [])];
-      
+
       const currentUsername = user?.username || "currentUser";
-      
+
       if (status === "liked") {
-        if (!currentLikes.some(like => like.username === currentUsername)) {
+        if (!currentLikes.some((like) => like.username === currentUsername)) {
           setPostData({
             ...postData,
-            likes: [...currentLikes, { 
-              username: currentUsername,
-              createdAt: new Date().toISOString(),
-              updatedAt: new Date().toISOString()
-            }]
+            likes: [
+              ...currentLikes,
+              {
+                username: currentUsername,
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+              },
+            ],
           });
         }
       } else if (status === "unliked") {
         setPostData({
           ...postData,
-          likes: currentLikes.filter(like => like.username !== currentUsername)
-        });      }
+          likes: currentLikes.filter(
+            (like) => like.username !== currentUsername
+          ),
+        });
+      }
     },
     onError: (error) => {
       Alert.alert(
@@ -101,7 +107,7 @@ export default function DetailScreen({ route, navigation }) {
       if (isLiking) {
         navigation.goBack();
       }
-    }
+    },
   });
   React.useEffect(() => {
     if (openComments && commentInputRef.current) {
@@ -109,7 +115,7 @@ export default function DetailScreen({ route, navigation }) {
         commentInputRef.current.focus();
       }, 500);
     }
-    
+
     if (isLiking) {
       handleLikePost();
     }
@@ -121,8 +127,8 @@ export default function DetailScreen({ route, navigation }) {
         <Text style={styles.errorText}>Post not found</Text>
       </View>
     );
-  }  
-  
+  }
+
   const handleSendComment = () => {
     if (!comment.trim()) return;
 
@@ -135,9 +141,9 @@ export default function DetailScreen({ route, navigation }) {
 
     setComment("");
   };
-    const handleLikePost = () => {
+  const handleLikePost = () => {
     if (likeLoading) return;
-    
+
     likePost({
       variables: {
         postId: postData._id,
@@ -164,12 +170,13 @@ export default function DetailScreen({ route, navigation }) {
       keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
     >
       <View style={styles.container}>
-        <ScrollView style={styles.scrollView}>          <View style={styles.postContainer}>
+        <ScrollView style={styles.scrollView}>
+          {" "}
+          <View style={styles.postContainer}>
             <PostHeader author={postData.author} timeAgo="1d ago" />
 
             <View style={styles.contentContainer}>
               <Text style={styles.content}>{postData.content}</Text>
-
               {postData.tags && postData.tags.length > 0 && (
                 <View style={styles.tagsContainer}>
                   {postData.tags.map((tag, index) => (
@@ -179,21 +186,23 @@ export default function DetailScreen({ route, navigation }) {
                   ))}
                 </View>
               )}
-
               {postData.imgUrl && (
                 <Image
                   source={{ uri: postData.imgUrl }}
                   style={styles.image}
                   resizeMode="cover"
                 />
-              )}            </View>
+              )}{" "}
+            </View>
 
             {(postData.likes?.length > 0 || comments.length > 0) && (
               <View style={styles.statsContainer}>
+                {" "}
                 {postData.likes?.length > 0 && (
-                  <Text style={styles.statText}>👍 {postData.likes.length}</Text>
+                  <Text style={styles.statText}>
+                    👍 {postData.likes.length}
+                  </Text>
                 )}
-
                 {comments.length > 0 && (
                   <Text style={styles.statText}>
                     {comments.length} comments
@@ -210,7 +219,6 @@ export default function DetailScreen({ route, navigation }) {
               onShare={() => console.log("Share")}
             />
           </View>
-
           <View style={styles.commentsSection}>
             <Text style={styles.commentsHeader}>Comments</Text>
             {comments.length === 0 ? (

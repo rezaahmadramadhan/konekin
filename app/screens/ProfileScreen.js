@@ -1,4 +1,5 @@
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, SafeAreaView, Image } from 'react-native';
+import { useContext } from 'react';
 import { AuthContext } from '../contexts/Auth';
 import { useNavigation } from '@react-navigation/native';
 import useProfile from '../hooks/useProfile';

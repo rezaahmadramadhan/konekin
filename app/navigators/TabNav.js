@@ -5,8 +5,7 @@ import { Text, View, StyleSheet, Alert } from "react-native";
 
 const Tab = createBottomTabNavigator();
 
-const TabIcon = ({ name, focused }) => {
-  let iconSymbol = "";
+const TabIcon = ({ name, focused }) => {  let iconSymbol = "";
   let label = "";
 
   switch (name) {

@@ -25,8 +25,7 @@ export default function CreatePostBar({ onPress }) {
             source={{ uri: 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user?.name || 'User') + '&background=0D8ABC&color=fff' }} 
             style={styles.profileImagePlaceholder} 
           />
-        </TouchableOpacity>
-        <View style={styles.inputContainer}>
+        </TouchableOpacity>        <View style={styles.inputContainer}>
           <Text style={styles.placeholderText}>Search</Text>
         </View>
       </TouchableOpacity>
