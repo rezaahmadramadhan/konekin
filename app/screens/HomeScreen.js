@@ -3,7 +3,7 @@ import { gql, useQuery } from "@apollo/client";
 import { useState, useCallback, useEffect } from "react";
 import { useFocusEffect } from '@react-navigation/native';
 import KonekInPost from "../components/KonekInPost";
-import CreatePostBar from "../components/CreatePostBar";
+import SearchBar from "../components/SearchBar";
 
 const GET_POSTS = gql`
   query Query {
@@ -32,7 +32,11 @@ const GET_POSTS = gql`
 `;
 
 export default function HomeScreen({ navigation }) {
-  const [refreshing, setRefreshing] = useState(false);  const { loading, error, data, refetch } = useQuery(GET_POSTS, {
+  const [refreshing, setRefreshing] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filteredPosts, setFilteredPosts] = useState([]);
+  const [isSearchEmpty, setIsSearchEmpty] = useState(false);
+  const { loading, error, data, refetch } = useQuery(GET_POSTS, {
     fetchPolicy: 'cache-and-network', // This will ensure we get fresh data each time
     onError: (error) => {
       console.error("Apollo error details:", error);
@@ -67,7 +71,44 @@ export default function HomeScreen({ navigation }) {
     const handleCreatePost = () => {
     console.log("Navigate to create post screen");
     navigation.navigate('CreatePost');
+  };  // Filter posts based on search query
+  useEffect(() => {
+    if (data && data.getPosts) {
+      if (!searchQuery.trim()) {
+        // When no search query, show all posts
+        setFilteredPosts(data.getPosts);
+        setIsSearchEmpty(false);
+      } else {
+        const query = searchQuery.toLowerCase();
+        const filtered = data.getPosts.filter(post => {
+          // Search in post content
+          if (post.content && post.content.toLowerCase().includes(query)) {
+            return true;
+          }
+          
+          // Search in tags
+          if (post.tags && post.tags.some(tag => tag.toLowerCase().includes(query))) {
+            return true;
+          }
+          
+          // Search in author name
+          if (post.author && post.author.name && post.author.name.toLowerCase().includes(query)) {
+            return true;
+          }
+          
+          return false;
+        });
+        
+        setFilteredPosts(filtered);
+        setIsSearchEmpty(filtered.length === 0);
+      }
+    }
+  }, [searchQuery, data]);
+  
+  const handleSearch = (text) => {
+    setSearchQuery(text);
   };
+  
   if (loading && !refreshing)
     return (
       <SafeAreaView style={styles.container}>
@@ -101,12 +142,10 @@ export default function HomeScreen({ navigation }) {
   }
   
   console.log("Data received:", data);
-  
-  if (!data || !data.getPosts || data.getPosts.length === 0) {
-    return (
+    if (!data || !data.getPosts || data.getPosts.length === 0) {    return (
       <SafeAreaView style={styles.container}>
         <StatusBar backgroundColor="#f5f5f5" barStyle="dark-content" />
-        <CreatePostBar onPress={handleCreatePost} />
+        <SearchBar onSearch={handleSearch} />
         <View style={styles.emptyContainer}>
           <Text style={styles.emptyTitle}>No posts yet</Text>
           <Text style={styles.emptyMessage}>Be the first to share something with your network!</Text>
@@ -125,14 +164,31 @@ export default function HomeScreen({ navigation }) {
             refreshing={refreshing}
             onRefresh={onRefresh}
             colors={["#0077b5"]}
-          />
-        }
+          />        }
       >
-        <CreatePostBar onPress={handleCreatePost} />
+        <SearchBar onSearch={handleSearch} />
         <View style={styles.feedContainer}>
-          {data.getPosts.map((post, index) => (
-            <KonekInPost key={post._id || index} post={post} />
-          ))}
+          {searchQuery.trim() !== '' && isSearchEmpty ? (
+            // Has search term but no results
+            <View style={styles.emptySearchContainer}>
+              <Text style={styles.emptySearchTitle}>No results found</Text>
+              <Text style={styles.emptySearchMessage}>Try different keywords or check your spelling</Text>
+            </View>
+          ) : (
+            <>
+              {searchQuery.trim() !== '' && (
+                <View style={styles.searchResultInfo}>
+                  <Text style={styles.searchResultText}>
+                    Showing results for: "{searchQuery}"
+                  </Text>
+                </View>
+              )}
+              {/* Always display posts (either filtered or all) */}
+              {filteredPosts.map((post, index) => (
+                <KonekInPost key={post._id || index} post={post} />
+              ))}
+            </>
+          )}
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -203,5 +259,47 @@ const styles = StyleSheet.create({
     fontSize: 15,
     textAlign: "center",
     color: "#555",
+  },
+  emptySearchContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 30,
+    marginTop: 50,
+  },
+  emptySearchTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 10,
+    color: "#555",
+  },
+  emptySearchMessage: {
+    fontSize: 15,
+    textAlign: "center",
+    color: "#777",
+  },
+  searchGuideContainer: {
+    padding: 20,
+    marginTop: 10,
+    backgroundColor: '#f0f8ff',
+    borderRadius: 8,
+    marginHorizontal: 10,
+  },
+  searchGuideText: {
+    fontSize: 15,
+    textAlign: "center",
+    color: "#0077b5",
+    lineHeight: 22,
+  },
+  searchResultInfo: {
+    backgroundColor: "#e6f2ff",
+    padding: 10,
+    marginHorizontal: 10,
+    marginBottom: 10,
+    borderRadius: 8,
+  },
+  searchResultText: {
+    fontSize: 14,
+    color: "#0077b5",
   },
 });
