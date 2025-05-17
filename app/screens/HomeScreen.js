@@ -1,108 +1,79 @@
-import { ScrollView, StyleSheet, View } from "react-native";
+import { ScrollView, StyleSheet, View, Text } from "react-native";
 import Card from "../components/Card";
+import { gql, useQuery } from "@apollo/client";
+
+const GET_POSTS = gql`
+  query Query {
+    getPosts {
+      _id
+      content
+      tags
+      imgUrl
+      authorId
+      comments {
+        username
+        content
+        createdAt
+        updatedAt
+      }
+      likes {
+        username
+        createdAt
+        updatedAt
+      }
+      author {
+        name
+      }
+    }
+  }
+`;
 
 export default function HomeScreen() {
-  const posts = [
-    {
-      content: `"Logic di backend? Beres.
-Milih makan siang? Ngga bisa." 😢 
+  const { loading, error, data } = useQuery(GET_POSTS, {
+    fetchPolicy: 'network-only', // Menghindari cache dan selalu mengambil data dari server
+    onError: (error) => {
+      console.error("Apollo error details:", error);
+      console.error("Network error:", error.networkError);
+      if (error.networkError && error.networkError.result) {
+        console.error("Network error details:", error.networkError.result);
+      }
+      console.error("GraphQL errors:", error.graphQLErrors);
+    }
+  });
 
-Sebagai backend developer, kalian pasti terbiasa berpikir logis dan menangani berbagai kasus:
- • "API bermasalah? Logging dan debugging"
- • "Query lambat? Cek index dan optimasi"
- • "Alur kompleks? Pecah jadi microservice"
-
-Tapi semua skill itu tiba-tiba hilang… saat buka GoFood.
-Scroll 10 menit lebih, filter udah dipakai, rating udah disortir
-tapi tetap aja:
-"Laper sih… tapi kok ngga ada yang pengen?"
-
-Akhirnya nyerah, jalan ke warteg.
-Berdiri di depan etalase lauk-lauk yang menggoda.
-Tapi otak malah freeze.
-"Telur balado atau ayam goreng? Tapi ada sambal teri juga… duh."
-
-Ironisnya, di dunia code bisa mantap ambil keputusan penting:
- • Nentuin struktur API
- • Pilih pendekatan terbaik untuk handle error
- • Pecah flow jadi lebih efisien
-
-Tapi di depan lauk warteg?
-"DecisionErrorException: Too many delicious options."
-
-Kadang, yang paling berat itu bukan logic coding…
-Tapi logic perut.`,
-      tags: [
-        "#BackendDeveloper",
-        "#LogicThinking",
-        "#ProgrammingLife",
-        "#BelajarNgoding",
-        "#SharingIlmu",
-        "#CodingMindset",
-        "#DevanSurya",
-      ],
-      imgUrl:
-        "https://media.licdn.com/dms/image/v2/D5622AQFNthA4HCvZtw/feedshare-shrink_800/B56ZYtvpKPH0Ag-/0/1744524187334?e=1750291200&v=beta&t=AXuCJqbUyedAB0rvcYPEVUV0hhh56RAeAtwGnk7ga1Y",
-      authorId: "68245c23bedbd56ff3c9196f",
-      comments: [
-        {
-          username: "andi",
-          content: "hahahahaha",
-          createdAt: "2025-05-14T17:04:42.142Z",
-          updatedAt: "2025-05-14T17:04:42.142Z",
-        },
-        {
-          username: "budi",
-          content: "wkwkwkw",
-          createdAt: "2025-05-14T17:04:42.142Z",
-          updatedAt: "2025-05-14T17:04:42.142Z",
-        },
-        {
-          username: "zalvin",
-          content: "lucu banget tuhh",
-          createdAt: "2025-05-14T17:04:42.142Z",
-          updatedAt: "2025-05-14T17:04:42.142Z",
-        },
-        {
-          username: "ika",
-          content: "ironi developerkuu",
-          createdAt: "2025-05-14T17:04:42.142Z",
-          updatedAt: "2025-05-14T17:04:42.142Z",
-        },
-        {
-          username: "alvan",
-          content: "relate bangett",
-          createdAt: "2025-05-14T17:04:42.142Z",
-          updatedAt: "2025-05-14T17:04:42.142Z",
-        },
-      ],
-      likes: [
-        {
-          username: "andi",
-          createdAt: "2025-05-14T17:04:42.142Z",
-          updatedAt: "2025-05-14T17:04:42.142Z",
-        },
-        {
-          username: "budi",
-          createdAt: "2025-05-14T17:04:42.142Z",
-          updatedAt: "2025-05-14T17:04:42.142Z",
-        },
-        {
-          username: "zalvin",
-          createdAt: "2025-05-14T17:04:42.142Z",
-          updatedAt: "2025-05-14T17:04:42.142Z",
-        },
-      ],
-      author: {
-        username: "Devan Surya",
-      },
-    },
-  ];
-
+  if (loading)
+    return (
+      <View style={styles.container}>
+        <Text>Loading...</Text>
+      </View>
+    );
+    
+  if (error) {
+    console.error("Error fetching posts:", error);
+    return (
+      <View style={styles.container}>
+        <Text>Error loading posts: {error.message}</Text>
+        {error.networkError && (
+          <Text>Network error: {JSON.stringify(error.networkError)}</Text>
+        )}
+      </View>
+    );
+  }
+  
+  console.log("Data received:", data);
+  
+  if (!data || !data.getPosts) {
+    return (
+      <View style={styles.container}>
+        <Text>No posts found. This might be due to authentication issues.</Text>
+      </View>
+    );
+  }
+  
   return (
     <ScrollView>
       <View style={styles.container}>
-        {posts.map((post, index) => (
+        {data.getPosts.map((post, index) => (
           <Card key={index} post={post} />
         ))}
       </View>

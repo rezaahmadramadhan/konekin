@@ -3,9 +3,13 @@ import LoginScreen from "../screens/LoginScreen";
 import TabNav from "./TabNav";
 import DetailScreen from "../screens/DetailScreen";
 import { Image } from "react-native";
+import { useContext } from "react";
+import { AuthContext } from "../contexts/Auth";
 const Stack = createNativeStackNavigator();
 
 export default function StackNav() {
+  const { isLogin } = useContext(AuthContext);
+
   return (
     <Stack.Navigator
       screenOptions={{
@@ -18,35 +22,26 @@ export default function StackNav() {
         },
       }}
     >
-      <Stack.Screen
-        name="Login"
-        component={LoginScreen}
-        options={{
-          headerTitle: () => (
-            <Image
-              source={{
-                uri: "https://content.linkedin.com/content/dam/me/business/en-us/amp/brand-site/v2/bg/LI-Logo.svg.original.svg",
-              }}
-              style={{ width: 100, height: 24 }}
-              resizeMode="contain"
-            />
-          ),
-          headerStyle: { backgroundColor: "white" },
-          // headerShown: false,
-        }}
-      />
-      <Stack.Screen
-        name="Home"
-        options={{ title: "Welcome", headerShown: false }}
-        component={TabNav}
-      />
-      <Stack.Screen
-        name="Detail"
-        options={({ route }) => ({
-          title: route.params.content,
-        })}
-        component={DetailScreen}
-      />
+      {isLogin ? (
+        <>
+          <Stack.Screen
+            name="Home"
+            options={{ title: "Welcome", headerShown: false }}
+            component={TabNav}
+          />
+          <Stack.Screen
+            name="Detail"
+            options={({ route }) => ({
+              title: route.params.content,
+            })}
+            component={DetailScreen}
+          />
+        </>
+      ) : (
+        <>
+          <Stack.Screen name="Login" component={LoginScreen} />
+        </>
+      )}
     </Stack.Navigator>
   );
 }

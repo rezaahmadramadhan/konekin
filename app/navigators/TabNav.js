@@ -1,7 +1,7 @@
-import Ionicons from "@react-native-vector-icons/ionicons";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import HomeScreen from "../screens/HomeScreen";
 import ProfileScreen from "../screens/ProfileScreen";
+import { Text } from "react-native";
 
 const Tab = createBottomTabNavigator();
 
@@ -10,7 +10,7 @@ export default function TabNav() {
     <Tab.Navigator
       screenOptions={({ route }) => ({
         tabBarIcon: ({ focused, color, size }) => {
-          let iconName;
+          let iconName = "";
 
           if (route.name === "HomeList") {
             iconName = focused ? "home" : "home-outline";
@@ -18,7 +18,8 @@ export default function TabNav() {
             iconName = focused ? "person" : "person-outline";
           }
 
-          return <Ionicons name={iconName} size={size} color={color} />;
+          // Return text icon as a temporary solution
+          return <Text style={{ fontSize: size, color: color }}>{iconName === "home" ? "🏠" : iconName === "home-outline" ? "🏠" : iconName === "person" ? "👤" : "👤"}</Text>;
         },
         tabBarActiveTintColor: "#e91e63",
         tabBarInactiveTintColor: "gray",

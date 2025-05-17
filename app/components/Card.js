@@ -8,6 +8,15 @@ export default function Card({ post }) {
     navigate('Detail', { post });
   };
 
+  // Check if post is valid and has all required fields
+  if (!post) {
+    return (
+      <View style={{ padding: 16 }}>
+        <Text>Invalid post data</Text>
+      </View>
+    );
+  }
+
   return (
     <TouchableOpacity
       onPress={handlePress}
@@ -21,24 +30,26 @@ export default function Card({ post }) {
       }}
     >
       <View style={{ flex: 2, gap: 5 }}>
-        <Text style={{ fontSize: 16, fontWeight: "bold" }}>{post.content}</Text>
-        {post.tags.map((tag, index) => (
+        <Text style={{ fontSize: 16, fontWeight: "bold" }}>{post.content || ""}</Text>
+        {post.tags && post.tags.map((tag, index) => (
           <Text key={index} style={{ color: "#888" }}>
             {tag}
             {index < post.tags.length - 1 ? ", " : ""}
           </Text>
         ))}
-        <Image
-          source={{ uri: post.imgUrl }}
-          style={{
-            width: "100%",
-            height: 200,
-            borderRadius: 8,
-            marginTop: 8,
-          }}
-        />
+        {post.imgUrl && (
+          <Image
+            source={{ uri: post.imgUrl }}
+            style={{
+              width: "100%",
+              height: 200,
+              borderRadius: 8,
+              marginTop: 8,
+            }}
+          />
+        )}
         <Text style={{ color: "#888", marginTop: 8 }}>
-          {post.comments.length} comments · {post.likes.length} likes
+          {post.comments ? post.comments.length : 0} comments · {post.likes ? post.likes.length : 0} likes
         </Text>
       </View>
     </TouchableOpacity>
