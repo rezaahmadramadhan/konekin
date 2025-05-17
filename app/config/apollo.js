@@ -30,7 +30,41 @@ const authLink = setContext(async (_, { headers }) => {
 
 const client = new ApolloClient({
   link: authLink.concat(httpLink),
-  cache: new InMemoryCache(),
+  cache: new InMemoryCache({
+    typePolicies: {
+      Query: {
+        fields: {
+          getPosts: {
+            merge(existing, incoming) {
+              return incoming;
+            },
+          },
+        },
+      },
+      Post: {
+        keyFields: ["_id"],
+        fields: {
+          likes: {
+            merge(existing = [], incoming) {
+              return incoming;
+            }
+          }
+        }
+      }
+    },
+  }),
+  defaultOptions: {
+    watchQuery: {
+      fetchPolicy: 'cache-and-network',
+      nextFetchPolicy: 'cache-first',
+    },
+    query: {
+      fetchPolicy: 'cache-and-network',
+    },
+    mutate: {
+      fetchPolicy: 'no-cache',
+    },
+  },
 });
 
 export default client;

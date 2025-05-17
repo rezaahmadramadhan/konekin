@@ -78,21 +78,41 @@ export default function DetailScreen({ route, navigation }) {
           ),
         });
       }
-    },    onError: (error) => {
+
+      // Navigate back if isLiking is true
+      if (isLiking) {
+        setTimeout(() => {
+          navigation.goBack();
+        }, 300); // Short delay for animation
+      }
+    },
+    onError: (error) => {
       Alert.alert(
         "Error",
         error.message || "Failed to like post. Please try again."
       );
-    },
-    onCompleted: () => {
-      // Ketika like operasi selesai, kembali ke layar sebelumnya jika isLiking true
-      if (isLiking) {
-        // Perbarui dulu state post di DetailScreen
-        setTimeout(() => {
-          navigation.goBack();
-        }, 300); // Delay sedikit untuk animasi
-      }
-    },
+    },    update: (cache) => {
+      // Force a refetch when navigating back
+      cache.modify({
+        fields: {
+          getPosts: (existingPosts = [], { readField }) => {
+            // Find the post and update it
+            return existingPosts.map(postRef => {
+              // Read the _id from the post reference
+              const postId = readField('_id', postRef);
+              
+              // If this is our post, update the cache
+              if (postId === postData._id) {
+                // We don't directly modify the cache here, just mark it as needing a refresh
+                cache.identify(postRef);
+              }
+              
+              return postRef;
+            });
+          }
+        }
+      });
+    }
   });
   React.useEffect(() => {
     if (openComments && commentInputRef.current) {
@@ -160,11 +180,12 @@ export default function DetailScreen({ route, navigation }) {
             <PostHeader author={postData.author} timeAgo="1d ago" />
 
             <View style={styles.contentContainer}>
-              <Text style={styles.content}>{postData.content}</Text>              {postData.tags && postData.tags.length > 0 && (
+              <Text style={styles.content}>{postData.content}</Text>
+              {postData.tags && postData.tags.length > 0 && (
                 <View style={styles.tagsContainer}>
                   {postData.tags.map((tag, index) => (
                     <Text key={index} style={styles.tag}>
-                      #{tag}
+                      {tag}
                     </Text>
                   ))}
                 </View>

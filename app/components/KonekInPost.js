@@ -12,7 +12,13 @@ export default function KonekInPost({ post }) {
   const { user } = useProfile();
   const [currentPost, setCurrentPost] = useState(post);
   
-  // Menggunakan useMutation untuk like
+  // Update local state when props change
+  React.useEffect(() => {
+    if (post && post._id === currentPost._id && JSON.stringify(post) !== JSON.stringify(currentPost)) {
+      setCurrentPost(post);
+    }
+  }, [post]);
+    // Menggunakan useMutation untuk like
   const [likePost, { loading: likeLoading }] = useMutation(LIKE_POST, {
     onCompleted: (data) => {
       const status = data.likePost;
@@ -48,15 +54,26 @@ export default function KonekInPost({ post }) {
         error.message || "Failed to like post. Please try again."
       );
     },
+    update: (cache) => {
+      // Update the cache for getPosts query to ensure consistency
+      cache.modify({
+        fields: {
+          getPosts: (existingPosts = []) => {
+            return existingPosts;
+          }
+        }
+      });
+    }
   });
-  
-  if (!currentPost) {
+    if (!currentPost) {
     return (
       <View style={styles.errorContainer}>
         <Text style={styles.errorText}>Invalid post data</Text>
       </View>
     );
-  }  const handlePostPress = () => {
+  }
+  
+  const handlePostPress = () => {
     navigation.navigate('Detail', { post: currentPost });
   };
   
@@ -95,7 +112,7 @@ export default function KonekInPost({ post }) {
         {currentPost.tags && currentPost.tags.length > 0 && (
           <View style={styles.tagsContainer}>
             {currentPost.tags.map((tag, index) => (
-              <Text key={index} style={styles.tag}>#{tag}</Text>
+              <Text key={index} style={styles.tag}>{tag}</Text>
             ))}
           </View>
         )}

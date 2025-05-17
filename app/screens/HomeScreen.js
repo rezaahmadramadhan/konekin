@@ -32,8 +32,8 @@ const GET_POSTS = gql`
 `;
 
 export default function HomeScreen({ navigation }) {
-  const [refreshing, setRefreshing] = useState(false);
-  const { loading, error, data, refetch } = useQuery(GET_POSTS, {
+  const [refreshing, setRefreshing] = useState(false);  const { loading, error, data, refetch } = useQuery(GET_POSTS, {
+    fetchPolicy: 'cache-and-network', // This will ensure we get fresh data each time
     onError: (error) => {
       console.error("Apollo error details:", error);
       console.error("Network error:", error.networkError);
@@ -47,12 +47,21 @@ export default function HomeScreen({ navigation }) {
     setRefreshing(true);
     refetch().then(() => setRefreshing(false));
   }, [refetch]);
-  
   // Refresh data setiap kali screen difokuskan (kembali dari Detail)
   useFocusEffect(
     useCallback(() => {
-      refetch();
-      return () => {};
+      console.log("Home screen focused - refreshing data");
+      // Add a small delay to ensure navigation transition completes
+      const refreshTimeout = setTimeout(() => {
+        refetch().catch(err => {
+          console.error("Error during refetch:", err);
+        });
+      }, 100);
+      
+      return () => {
+        console.log("Home screen unfocused");
+        clearTimeout(refreshTimeout);
+      };
     }, [refetch])
   );
   
