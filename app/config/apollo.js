@@ -3,18 +3,18 @@ import { setContext } from '@apollo/client/link/context';
 import { getValueSecure } from '../helpers/secureStore';
 import { Platform } from 'react-native';
 
-const getServerUrl = () => {
-  if (__DEV__) {
-    if (Platform.OS === 'android') {
-      return 'http://10.0.2.2:3000/';
-    }
-    return 'http://localhost:3000/';
-  }
-  return 'https://your-production-server.com/';
-};
+// const getServerUrl = () => {
+//   if (__DEV__) {
+//     if (Platform.OS === 'android') {
+//       return 'http://10.0.2.2:3000/';
+//     }
+//     return 'http://localhost:3000/';
+//   }
+//   return 'https://gc01.dhronz.space/';
+// };
 
 const httpLink = createHttpLink({
-  uri: getServerUrl(), 
+  uri: 'https://gc01.dhronz.space/', 
 });
 
 const authLink = setContext(async (_, { headers }) => {

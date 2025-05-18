@@ -1,7 +1,16 @@
-import { ScrollView, StyleSheet, View, Text, RefreshControl, ActivityIndicator, SafeAreaView, StatusBar } from "react-native";
+import {
+  ScrollView,
+  StyleSheet,
+  View,
+  Text,
+  RefreshControl,
+  ActivityIndicator,
+  SafeAreaView,
+  StatusBar,
+} from "react-native";
 import { gql, useQuery } from "@apollo/client";
 import { useState, useCallback, useEffect } from "react";
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect } from "@react-navigation/native";
 import KonekInPost from "../components/KonekInPost";
 import SearchBar from "../components/SearchBar";
 
@@ -37,7 +46,7 @@ export default function HomeScreen({ navigation }) {
   const [filteredPosts, setFilteredPosts] = useState([]);
   const [isSearchEmpty, setIsSearchEmpty] = useState(false);
   const { loading, error, data, refetch } = useQuery(GET_POSTS, {
-    fetchPolicy: 'cache-and-network', // This will ensure we get fresh data each time
+    fetchPolicy: "cache-and-network", // This will ensure we get fresh data each time
     onError: (error) => {
       console.error("Apollo error details:", error);
       console.error("Network error:", error.networkError);
@@ -47,7 +56,7 @@ export default function HomeScreen({ navigation }) {
       console.error("GraphQL errors:", error.graphQLErrors);
     },
   });
-    const onRefresh = useCallback(() => {
+  const onRefresh = useCallback(() => {
     setRefreshing(true);
     refetch().then(() => setRefreshing(false));
   }, [refetch]);
@@ -57,58 +66,61 @@ export default function HomeScreen({ navigation }) {
       console.log("Home screen focused - refreshing data");
       // Add a small delay to ensure navigation transition completes
       const refreshTimeout = setTimeout(() => {
-        refetch().catch(err => {
+        refetch().catch((err) => {
           console.error("Error during refetch:", err);
         });
       }, 100);
-      
+
       return () => {
         console.log("Home screen unfocused");
         clearTimeout(refreshTimeout);
       };
     }, [refetch])
   );
-    const handleCreatePost = () => {
+  const handleCreatePost = () => {
     console.log("Navigate to create post screen");
-    navigation.navigate('CreatePost');
-  };  // Filter posts based on search query
+    navigation.navigate("CreatePost");
+  }; // Filter posts based on search query
   useEffect(() => {
     if (data && data.getPosts) {
       if (!searchQuery.trim()) {
-        // When no search query, show all posts
         setFilteredPosts(data.getPosts);
         setIsSearchEmpty(false);
       } else {
         const query = searchQuery.toLowerCase();
-        const filtered = data.getPosts.filter(post => {
-          // Search in post content
+        const filtered = data.getPosts.filter((post) => {
           if (post.content && post.content.toLowerCase().includes(query)) {
             return true;
           }
-          
-          // Search in tags
-          if (post.tags && post.tags.some(tag => tag.toLowerCase().includes(query))) {
+
+          if (
+            post.tags &&
+            post.tags.some((tag) => tag.toLowerCase().includes(query))
+          ) {
             return true;
           }
-          
-          // Search in author name
-          if (post.author && post.author.name && post.author.name.toLowerCase().includes(query)) {
+
+          if (
+            post.author &&
+            post.author.name &&
+            post.author.name.toLowerCase().includes(query)
+          ) {
             return true;
           }
-          
+
           return false;
         });
-        
+
         setFilteredPosts(filtered);
         setIsSearchEmpty(filtered.length === 0);
       }
     }
   }, [searchQuery, data]);
-  
+
   const handleSearch = (text) => {
     setSearchQuery(text);
   };
-  
+
   if (loading && !refreshing)
     return (
       <SafeAreaView style={styles.container}>
@@ -119,7 +131,7 @@ export default function HomeScreen({ navigation }) {
         </View>
       </SafeAreaView>
     );
-  
+
   if (error) {
     console.error("Error fetching posts:", error);
     return (
@@ -129,31 +141,37 @@ export default function HomeScreen({ navigation }) {
           <Text style={styles.errorTitle}>Error loading posts</Text>
           <Text style={styles.errorMessage}>{error.message}</Text>
           {error.networkError && (
-            <Text style={styles.errorDetails}>Network error: Check your internet connection</Text>
-          )}
-          {error.graphQLErrors && error.graphQLErrors.map((gqlError, index) => (
-            <Text key={index} style={styles.errorDetails}>
-              {gqlError.message}
+            <Text style={styles.errorDetails}>
+              Network error: Check your internet connection
             </Text>
-          ))}
+          )}
+          {error.graphQLErrors &&
+            error.graphQLErrors.map((gqlError, index) => (
+              <Text key={index} style={styles.errorDetails}>
+                {gqlError.message}
+              </Text>
+            ))}
         </View>
       </SafeAreaView>
     );
   }
-  
+
   console.log("Data received:", data);
-    if (!data || !data.getPosts || data.getPosts.length === 0) {    return (
+  if (!data || !data.getPosts || data.getPosts.length === 0) {
+    return (
       <SafeAreaView style={styles.container}>
         <StatusBar backgroundColor="#f5f5f5" barStyle="dark-content" />
         <SearchBar onSearch={handleSearch} />
         <View style={styles.emptyContainer}>
           <Text style={styles.emptyTitle}>No posts yet</Text>
-          <Text style={styles.emptyMessage}>Be the first to share something with your network!</Text>
+          <Text style={styles.emptyMessage}>
+            Be the first to share something with your network!
+          </Text>
         </View>
       </SafeAreaView>
     );
   }
-  
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBar backgroundColor="#f5f5f5" barStyle="dark-content" />
@@ -164,26 +182,27 @@ export default function HomeScreen({ navigation }) {
             refreshing={refreshing}
             onRefresh={onRefresh}
             colors={["#0077b5"]}
-          />        }
+          />
+        }
       >
         <SearchBar onSearch={handleSearch} />
         <View style={styles.feedContainer}>
-          {searchQuery.trim() !== '' && isSearchEmpty ? (
-            // Has search term but no results
+          {searchQuery.trim() !== "" && isSearchEmpty ? (
             <View style={styles.emptySearchContainer}>
               <Text style={styles.emptySearchTitle}>No results found</Text>
-              <Text style={styles.emptySearchMessage}>Try different keywords or check your spelling</Text>
+              <Text style={styles.emptySearchMessage}>
+                Try different keywords or check your spelling
+              </Text>
             </View>
           ) : (
             <>
-              {searchQuery.trim() !== '' && (
+              {searchQuery.trim() !== "" && (
                 <View style={styles.searchResultInfo}>
                   <Text style={styles.searchResultText}>
                     Showing results for: "{searchQuery}"
                   </Text>
                 </View>
               )}
-              {/* Always display posts (either filtered or all) */}
               {filteredPosts.map((post, index) => (
                 <KonekInPost key={post._id || index} post={post} />
               ))}
@@ -195,7 +214,8 @@ export default function HomeScreen({ navigation }) {
   );
 }
 
-const styles = StyleSheet.create({  safeArea: {
+const styles = StyleSheet.create({
+  safeArea: {
     flex: 1,
     backgroundColor: "#f5f5f5",
   },
@@ -207,7 +227,7 @@ const styles = StyleSheet.create({  safeArea: {
     backgroundColor: "#f5f5f5",
   },
   feedContainer: {
-    paddingBottom: 80, // Increased padding to avoid content being hidden by tab bar
+    paddingBottom: 80, 
   },
   loadingContainer: {
     flex: 1,
@@ -280,7 +300,7 @@ const styles = StyleSheet.create({  safeArea: {
   searchGuideContainer: {
     padding: 20,
     marginTop: 10,
-    backgroundColor: '#f0f8ff',
+    backgroundColor: "#f0f8ff",
     borderRadius: 8,
     marginHorizontal: 10,
   },
