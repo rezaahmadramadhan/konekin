@@ -290,8 +290,13 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#666',
   },
+  scrollView: {
+    flex: 1,
+    paddingBottom: 20,
+  },
   logoutButton: {
     margin: 20,
+    marginBottom: 80, // Increased bottom margin to avoid tab navigation
     backgroundColor: '#f0f0f0',
     padding: 15,
     borderRadius: 8,

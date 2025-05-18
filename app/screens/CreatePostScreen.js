@@ -192,11 +192,11 @@ const styles = StyleSheet.create({
   profileName: {
     fontSize: 16,
     fontWeight: "600",
-  },
-  contentInput: {
+  },  contentInput: {
     padding: 15,
     fontSize: 18,
     minHeight: 150,
+    paddingBottom: 80, // Increased padding to avoid content being hidden
   },
   tagInput: {
     padding: 15,

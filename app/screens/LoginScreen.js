@@ -118,7 +118,7 @@ export default function LoginScreen() {  const [username, setUsername] = useStat
 
         <View style={styles.footer}>
           <Text style={styles.footerText}>
-            New to KonekIn?
+            New to KonekIn?{" "}
             <Text
               style={styles.signUpText}
               onPress={() => navigation.navigate("Register")}

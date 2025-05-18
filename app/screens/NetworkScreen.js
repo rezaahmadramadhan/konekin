@@ -325,12 +325,12 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: "bold",
     color: "#0077b5",
-  },
-  contentContainer: {
+  },  contentContainer: {
     flex: 1,
   },
   listContainer: {
     padding: 10,
+    paddingBottom: 80, // Increased padding to prevent content being hidden by tab bar
   },
   userCard: {
     backgroundColor: "#ffffff",

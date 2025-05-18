@@ -195,8 +195,7 @@ export default function HomeScreen({ navigation }) {
   );
 }
 
-const styles = StyleSheet.create({
-  safeArea: {
+const styles = StyleSheet.create({  safeArea: {
     flex: 1,
     backgroundColor: "#f5f5f5",
   },
@@ -208,7 +207,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#f5f5f5",
   },
   feedContainer: {
-    paddingBottom: 20,
+    paddingBottom: 80, // Increased padding to avoid content being hidden by tab bar
   },
   loadingContainer: {
     flex: 1,
