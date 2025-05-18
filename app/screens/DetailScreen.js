@@ -332,7 +332,8 @@ const styles = StyleSheet.create({
   statText: {
     color: "#666",
     fontSize: 14,
-  },  commentsSection: {
+  },
+  commentsSection: {
     backgroundColor: "white",
     padding: 15,
     paddingBottom: 80,

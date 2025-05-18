@@ -17,19 +17,30 @@ import { useNavigation } from "@react-navigation/native";
 import { gql, useMutation } from "@apollo/client";
 
 const REGISTER = gql`
-  mutation Register($name: String, $username: String, $email: String, $password: String) {
-    register(name: $name, username: $username, email: $email, password: $password)
+  mutation Register(
+    $name: String
+    $username: String
+    $email: String
+    $password: String
+  ) {
+    register(
+      name: $name
+      username: $username
+      email: $email
+      password: $password
+    )
   }
 `;
 
-export default function RegisterScreen() {  const [name, setName] = useState("");
+export default function RegisterScreen() {
+  const [name, setName] = useState("");
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const navigation = useNavigation();
   const [doRegister, { loading }] = useMutation(REGISTER);
-  
+
   const handleRegister = async () => {
     try {
       if (!name || !username || !email || !password) {
@@ -43,7 +54,10 @@ export default function RegisterScreen() {  const [name, setName] = useState("")
       }
 
       if (password.length < 5) {
-        Alert.alert("Registration Error", "Password must be at least 5 characters");
+        Alert.alert(
+          "Registration Error",
+          "Password must be at least 5 characters"
+        );
         return;
       }
 
@@ -64,7 +78,10 @@ export default function RegisterScreen() {  const [name, setName] = useState("")
         );
       }
     } catch (error) {
-      Alert.alert("Registration Error", error.message || "An unknown error occurred");
+      Alert.alert(
+        "Registration Error",
+        error.message || "An unknown error occurred"
+      );
     }
   };
 
@@ -149,11 +166,12 @@ export default function RegisterScreen() {  const [name, setName] = useState("")
             </View>
 
             <Text style={styles.termsText}>
-              By clicking Join, you agree to the KonekIn User Agreement, Privacy Policy, and Cookie Policy.
+              By clicking Join, you agree to the KonekIn User Agreement, Privacy
+              Policy, and Cookie Policy.
             </Text>
 
-            <TouchableOpacity 
-              style={styles.joinButton} 
+            <TouchableOpacity
+              style={styles.joinButton}
               onPress={handleRegister}
               disabled={loading}
             >

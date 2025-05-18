@@ -1,15 +1,15 @@
-import { View, Text, StyleSheet, Image } from 'react-native';
+import { View, Text, StyleSheet, Image } from "react-native";
 
 export default function PostHeader({ author, timeAgo }) {
   return (
     <View style={styles.headerContainer}>
-      <Image 
-        source={{ uri: 'https://via.placeholder.com/40' }} 
-        style={styles.profileImage} 
+      <Image
+        source={{ uri: "https://via.placeholder.com/40" }}
+        style={styles.profileImage}
       />
       <View style={styles.headerInfo}>
-        <Text style={styles.authorName}>{author?.name || 'Anonymous'}</Text>
-        <Text style={styles.timeAgo}>{timeAgo || 'Just now'}</Text>
+        <Text style={styles.authorName}>{author?.name || "Anonymous"}</Text>
+        <Text style={styles.timeAgo}>{timeAgo || "Just now"}</Text>
       </View>
     </View>
   );
@@ -17,8 +17,8 @@ export default function PostHeader({ author, timeAgo }) {
 
 const styles = StyleSheet.create({
   headerContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     paddingVertical: 10,
   },
   profileImage: {
@@ -31,11 +31,11 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   authorName: {
-    fontWeight: 'bold',
+    fontWeight: "bold",
     fontSize: 15,
   },
   timeAgo: {
-    color: '#666',
+    color: "#666",
     fontSize: 12,
   },
 });

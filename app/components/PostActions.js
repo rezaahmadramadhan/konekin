@@ -1,35 +1,33 @@
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import useProfile from '../hooks/useProfile';
+import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import useProfile from "../hooks/useProfile";
 
-export default function PostActions({ likes, comments, onLike, onComment, onShare }) {
+export default function PostActions({
+  likes,
+  comments,
+  onLike,
+  onComment,
+  onShare,
+}) {
   const { user } = useProfile();
   const currentUsername = user?.username;
-  const hasLiked = likes?.some(like => like.username === currentUsername);
-  
+  const hasLiked = likes?.some((like) => like.username === currentUsername);
+
   return (
     <View style={styles.actionsContainer}>
-      <TouchableOpacity 
-        style={styles.actionButton} 
-        onPress={onLike}
-      >
+      <TouchableOpacity style={styles.actionButton} onPress={onLike}>
         <Text style={styles.actionIcon}>{"👍"}</Text>
         <Text style={[styles.actionText, hasLiked && styles.likedText]}>
-          {hasLiked ? 'Liked' : 'Like'} {likes?.length > 0 ? `(${likes.length})` : ''}
+          {hasLiked ? "Liked" : "Like"}{" "}
+          {likes?.length > 0 ? `(${likes.length})` : ""}
         </Text>
       </TouchableOpacity>
-      <TouchableOpacity 
-        style={styles.actionButton} 
-        onPress={onComment}
-      >
+      <TouchableOpacity style={styles.actionButton} onPress={onComment}>
         <Text style={styles.actionIcon}>{"💬"}</Text>
         <Text style={styles.actionText}>
-          Comment {comments?.length > 0 ? `(${comments.length})` : ''}
+          Comment {comments?.length > 0 ? `(${comments.length})` : ""}
         </Text>
       </TouchableOpacity>
-      <TouchableOpacity 
-        style={styles.actionButton} 
-        onPress={onShare}
-      >
+      <TouchableOpacity style={styles.actionButton} onPress={onShare}>
         <Text style={styles.actionIcon}>{"↗️"}</Text>
         <Text style={styles.actionText}>Share</Text>
       </TouchableOpacity>
@@ -39,16 +37,16 @@ export default function PostActions({ likes, comments, onLike, onComment, onShar
 
 const styles = StyleSheet.create({
   actionsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
+    flexDirection: "row",
+    justifyContent: "space-around",
     borderTopWidth: 1,
-    borderTopColor: '#e0e0e0',
+    borderTopColor: "#e0e0e0",
     paddingVertical: 8,
     marginTop: 10,
   },
   actionButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     paddingVertical: 5,
     paddingHorizontal: 10,
   },
@@ -57,11 +55,11 @@ const styles = StyleSheet.create({
     marginRight: 5,
   },
   actionText: {
-    color: '#555',
+    color: "#555",
     fontSize: 13,
   },
   likedText: {
-    color: '#0077b5',
-    fontWeight: 'bold',
+    color: "#0077b5",
+    fontWeight: "bold",
   },
 });

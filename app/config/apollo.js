@@ -1,7 +1,7 @@
 import { ApolloClient, InMemoryCache, createHttpLink } from "@apollo/client";
-import { setContext } from '@apollo/client/link/context';
-import { getValueSecure } from '../helpers/secureStore';
-import { Platform } from 'react-native';
+import { setContext } from "@apollo/client/link/context";
+import { getValueSecure } from "../helpers/secureStore";
+import { Platform } from "react-native";
 
 // const getServerUrl = () => {
 //   if (__DEV__) {
@@ -14,17 +14,17 @@ import { Platform } from 'react-native';
 // };
 
 const httpLink = createHttpLink({
-  uri: 'https://gc01.dhronz.space/', 
+  uri: "https://gc01.dhronz.space/",
 });
 
 const authLink = setContext(async (_, { headers }) => {
-  const token = await getValueSecure('token');
-  
+  const token = await getValueSecure("token");
+
   return {
     headers: {
       ...headers,
       authorization: token ? `Bearer ${token}` : "",
-    }
+    },
   };
 });
 
@@ -47,9 +47,9 @@ const client = new ApolloClient({
           likes: {
             merge(existing = [], incoming) {
               return incoming;
-            }
-          }
-        }
+            },
+          },
+        },
       },
       User: {
         keyFields: ["_id"],
@@ -57,27 +57,27 @@ const client = new ApolloClient({
           userFollowers: {
             merge(existing = [], incoming) {
               return incoming;
-            }
+            },
           },
           userFollowings: {
             merge(existing = [], incoming) {
               return incoming;
-            }
-          }
-        }
-      }
+            },
+          },
+        },
+      },
     },
   }),
   defaultOptions: {
     watchQuery: {
-      fetchPolicy: 'cache-and-network',
-      nextFetchPolicy: 'cache-first',
+      fetchPolicy: "cache-and-network",
+      nextFetchPolicy: "cache-first",
     },
     query: {
-      fetchPolicy: 'cache-and-network',
+      fetchPolicy: "cache-and-network",
     },
     mutate: {
-      fetchPolicy: 'no-cache',
+      fetchPolicy: "no-cache",
     },
   },
 });

@@ -73,14 +73,19 @@ export default function TabNav() {
         name="HomeScreen"
         component={HomeScreen}
         options={{
-          tabBarIcon: ({ focused }) => <TabIcon name="home" focused={focused} />,
+          tabBarIcon: ({ focused }) => (
+            <TabIcon name="home" focused={focused} />
+          ),
           tabBarLabel: () => null,
-        }}      />
+        }}
+      />
       <Tab.Screen
         name="MyNetwork"
         component={NetworkScreen}
         options={{
-          tabBarIcon: ({ focused }) => <TabIcon name="network" focused={focused} />,
+          tabBarIcon: ({ focused }) => (
+            <TabIcon name="network" focused={focused} />
+          ),
           tabBarLabel: () => null,
         }}
       />
@@ -88,13 +93,15 @@ export default function TabNav() {
         name="Post"
         component={HomeScreen}
         options={{
-          tabBarIcon: ({ focused }) => <TabIcon name="post" focused={focused} />,
+          tabBarIcon: ({ focused }) => (
+            <TabIcon name="post" focused={focused} />
+          ),
           tabBarLabel: () => null,
         }}
         listeners={{
           tabPress: (e) => {
             e.preventDefault();
-            navigation.navigate('CreatePost');
+            navigation.navigate("CreatePost");
           },
         }}
       />
@@ -102,13 +109,15 @@ export default function TabNav() {
         name="Notifications"
         component={HomeScreen}
         options={{
-          tabBarIcon: ({ focused }) => <TabIcon name="notifications" focused={focused} />,
+          tabBarIcon: ({ focused }) => (
+            <TabIcon name="notifications" focused={focused} />
+          ),
           tabBarLabel: () => null,
         }}
         listeners={{
           tabPress: (e) => {
             e.preventDefault();
-            Alert.alert('Info', 'Notifications feature coming soon!');
+            Alert.alert("Info", "Notifications feature coming soon!");
           },
         }}
       />
@@ -116,7 +125,9 @@ export default function TabNav() {
         name="Profile"
         component={ProfileScreen}
         options={{
-          tabBarIcon: ({ focused }) => <TabIcon name="profile" focused={focused} />,
+          tabBarIcon: ({ focused }) => (
+            <TabIcon name="profile" focused={focused} />
+          ),
           tabBarLabel: () => null,
         }}
       />
@@ -126,22 +137,22 @@ export default function TabNav() {
 
 const styles = StyleSheet.create({
   tabContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
   tabIcon: {
     fontSize: 24,
     marginBottom: 3,
   },
   tabIconFocused: {
-    color: '#0077b5',
+    color: "#0077b5",
   },
   tabLabel: {
     fontSize: 10,
-    color: '#666',
+    color: "#666",
   },
   tabLabelFocused: {
-    color: '#0077b5',
-    fontWeight: 'bold',
+    color: "#0077b5",
+    fontWeight: "bold",
   },
 });

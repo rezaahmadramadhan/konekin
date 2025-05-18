@@ -32,7 +32,6 @@ export default function KonekInPost({ post }) {
       setCurrentPost(post);
     }
   }, [post]);
-  // Menggunakan useMutation untuk like
   const [likePost, { loading: likeLoading }] = useMutation(LIKE_POST, {
     onCompleted: (data) => {
       const status = data.likePost;
@@ -69,7 +68,6 @@ export default function KonekInPost({ post }) {
       );
     },
     update: (cache) => {
-      // Update the cache for getPosts query to ensure consistency
       cache.modify({
         fields: {
           getPosts: (existingPosts = []) => {
@@ -94,7 +92,6 @@ export default function KonekInPost({ post }) {
   const handleLike = () => {
     if (likeLoading) return;
 
-    // Melakukan like langsung tanpa pindah ke DetailScreen
     likePost({
       variables: {
         postId: currentPost._id,

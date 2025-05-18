@@ -30,23 +30,25 @@ export default function StackNav() {
         <>
           <Stack.Screen
             name="Home"
-            options={{ 
+            options={{
               title: "KonekIn",
-              headerShown: false
+              headerShown: false,
             }}
-            component={TabNav}          />
+            component={TabNav}
+          />
           <Stack.Screen
             name="Detail"
             options={({ route, navigation }) => ({
               title: "Post",
               headerLeft: () => (
-                <TouchableOpacity 
+                <TouchableOpacity
                   onPress={() => navigation.goBack()}
                   style={styles.backButton}
                 >
                   <Text style={styles.backButtonText}>←</Text>
                 </TouchableOpacity>
-              ),            })}
+              ),
+            })}
             component={DetailScreen}
           />
           <Stack.Screen
@@ -54,7 +56,7 @@ export default function StackNav() {
             options={({ navigation }) => ({
               title: "Create Post",
               headerLeft: () => (
-                <TouchableOpacity 
+                <TouchableOpacity
                   onPress={() => navigation.goBack()}
                   style={styles.backButton}
                 >
@@ -67,15 +69,15 @@ export default function StackNav() {
         </>
       ) : (
         <>
-          <Stack.Screen 
-            name="Login" 
+          <Stack.Screen
+            name="Login"
             component={LoginScreen}
             options={{
               headerShown: false,
             }}
           />
-          <Stack.Screen 
-            name="Register" 
+          <Stack.Screen
+            name="Register"
             component={RegisterScreen}
             options={{
               headerShown: false,

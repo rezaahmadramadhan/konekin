@@ -36,7 +36,7 @@ export default function NetworkScreen() {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [connectionStates, setConnectionStates] = useState({});
   const { userId, user } = useProfile();
-  
+
   // Get full user profile with followers and followings
   const GET_USER_DETAILS = gql`
     query Query($id: ID) {
@@ -48,7 +48,7 @@ export default function NetworkScreen() {
       }
     }
   `;
-  
+
   // Query to get the full user profile including followings
   const { data: userDetailsData } = useQuery(GET_USER_DETAILS, {
     variables: { id: userId },
@@ -57,12 +57,12 @@ export default function NetworkScreen() {
       if (data?.findUserById?.userFollowings) {
         // Initialize connection states based on user's following list
         const initialStates = {};
-        data.findUserById.userFollowings.forEach(following => {
+        data.findUserById.userFollowings.forEach((following) => {
           initialStates[following._id] = "following";
         });
         setConnectionStates(initialStates);
       }
-    }
+    },
   });
 
   const { loading, error, data, refetch } = useQuery(FIND_USERS, {
@@ -84,10 +84,13 @@ export default function NetworkScreen() {
       }
     },
     onError: (error) => {
-      Alert.alert("Error", error.message || "Failed to follow user. Please try again.");
+      Alert.alert(
+        "Error",
+        error.message || "Failed to follow user. Please try again."
+      );
     },
     refetchQueries: [
-      { 
+      {
         query: gql`
           query Query($id: ID) {
             findUserById(id: $id) {
@@ -100,10 +103,10 @@ export default function NetworkScreen() {
               }
             }
           }
-        `, 
-        variables: { id: userId } 
-      }
-    ]
+        `,
+        variables: { id: userId },
+      },
+    ],
   });
 
   const refreshContent = React.useCallback(() => {
@@ -166,9 +169,9 @@ export default function NetworkScreen() {
     if (followLoading) return;
 
     // Update UI optimistically
-    setConnectionStates(prev => ({
+    setConnectionStates((prev) => ({
       ...prev,
-      [userId]: prev[userId] === "following" ? "connect" : "following"
+      [userId]: prev[userId] === "following" ? "connect" : "following",
     }));
 
     // Call the followUser mutation
@@ -179,11 +182,11 @@ export default function NetworkScreen() {
       update: (cache, { data }) => {
         // Update the cache to reflect the follow/unfollow action
         const status = data.followUser;
-        
+
         // If we have the user details cached, update them
         const cachedData = cache.readQuery({
           query: GET_USER_DETAILS,
-          variables: { id: userId }
+          variables: { id: userId },
         });
 
         if (cachedData) {
@@ -193,14 +196,15 @@ export default function NetworkScreen() {
             refetch();
           }
         }
-      }
+      },
     });
-  };const renderUserItem = ({ item }) => {
+  };
+  const renderUserItem = ({ item }) => {
     // Skip rendering if it's the current user
     if (item._id === userId) {
       return null;
     }
-    
+
     const connectionState = connectionStates[item._id] || "connect";
     const isFollowing = connectionState === "following";
 
@@ -220,17 +224,17 @@ export default function NetworkScreen() {
             <Text style={styles.userEmail}>{item.email}</Text>
           </View>
         </View>
-        <TouchableOpacity 
+        <TouchableOpacity
           style={[
-            styles.connectButton, 
-            isFollowing ? styles.followingButton : {}
+            styles.connectButton,
+            isFollowing ? styles.followingButton : {},
           ]}
           onPress={() => handleConnectPress(item._id)}
         >
-          <Text 
+          <Text
             style={[
               styles.connectButtonText,
-              isFollowing ? styles.followingButtonText : {}
+              isFollowing ? styles.followingButtonText : {},
             ]}
           >
             {isFollowing ? "Following" : "Connect"}
@@ -254,7 +258,6 @@ export default function NetworkScreen() {
   if (error && !searchQuery) {
     return (
       <SafeAreaView style={styles.container}>
-        {/* Keep the fixed header and search even in error state */}
         {fixedHeader}
         {searchBar}
         <View style={styles.centered}>
@@ -272,13 +275,9 @@ export default function NetworkScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Fixed header that doesn't refresh */}
       {fixedHeader}
-
-      {/* Fixed search container that doesn't refresh */}
       {searchBar}
 
-      {/* Content area that can refresh independently */}
       <View style={styles.contentContainer}>
         {loading && searchQuery.length > 0 ? (
           <View style={styles.centered}>
@@ -300,7 +299,6 @@ export default function NetworkScreen() {
                 </Text>
               </View>
             }
-            // Allow refreshing only the content area
             refreshing={isRefreshing}
             onRefresh={refreshContent}
           />
@@ -325,12 +323,13 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: "bold",
     color: "#0077b5",
-  },  contentContainer: {
+  },
+  contentContainer: {
     flex: 1,
   },
   listContainer: {
     padding: 10,
-    paddingBottom: 80, // Increased padding to prevent content being hidden by tab bar
+    paddingBottom: 80,
   },
   userCard: {
     backgroundColor: "#ffffff",
@@ -382,7 +381,8 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: "#999",
     marginTop: 2,
-  },  connectButton: {
+  },
+  connectButton: {
     backgroundColor: "#ffffff",
     borderWidth: 1,
     borderColor: "#0077b5",

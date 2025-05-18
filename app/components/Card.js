@@ -5,7 +5,7 @@ export default function Card({ post }) {
   const { navigate } = useNavigation();
 
   const handlePress = () => {
-    navigate('Detail', { post });
+    navigate("Detail", { post });
   };
 
   if (!post) {
@@ -29,13 +29,16 @@ export default function Card({ post }) {
       }}
     >
       <View style={{ flex: 2, gap: 5 }}>
-        <Text style={{ fontSize: 16, fontWeight: "bold" }}>{post.content || ""}</Text>
-        {post.tags && post.tags.map((tag, index) => (
-          <Text key={index} style={{ color: "#888" }}>
-            {tag}
-            {index < post.tags.length - 1 ? ", " : ""}
-          </Text>
-        ))}
+        <Text style={{ fontSize: 16, fontWeight: "bold" }}>
+          {post.content || ""}
+        </Text>
+        {post.tags &&
+          post.tags.map((tag, index) => (
+            <Text key={index} style={{ color: "#888" }}>
+              {tag}
+              {index < post.tags.length - 1 ? ", " : ""}
+            </Text>
+          ))}
         {post.imgUrl && (
           <Image
             source={{ uri: post.imgUrl }}
@@ -48,7 +51,8 @@ export default function Card({ post }) {
           />
         )}
         <Text style={{ color: "#888", marginTop: 8 }}>
-          {post.comments ? post.comments.length : 0} comments · {post.likes ? post.likes.length : 0} likes
+          {post.comments ? post.comments.length : 0} comments ·{" "}
+          {post.likes ? post.likes.length : 0} likes
         </Text>
       </View>
     </TouchableOpacity>

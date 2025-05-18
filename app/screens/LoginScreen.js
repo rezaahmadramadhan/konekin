@@ -25,13 +25,14 @@ const LOGIN = gql`
   }
 `;
 
-export default function LoginScreen() {  const [username, setUsername] = useState("");
+export default function LoginScreen() {
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const navigation = useNavigation();
   const { setIsLogin } = useContext(AuthContext);
   const [doLogin, { loading }] = useMutation(LOGIN);
-  
+
   const handleLogin = async () => {
     try {
       console.log("Sending login request...");

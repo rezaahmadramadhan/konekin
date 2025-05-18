@@ -26,7 +26,9 @@ export default function AuthProvider({ children }) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ isLogin, setIsLogin, userData, setUserData, logout }}>
+    <AuthContext.Provider
+      value={{ isLogin, setIsLogin, userData, setUserData, logout }}
+    >
       {children}
     </AuthContext.Provider>
   );
