@@ -50,13 +50,12 @@ const userTypeDefs = `#graphql
 const userResolvers = {
   Query: {
     findUser: async (_, { name, username }) => {
-      if (!name && !username) {
-        throw new Error("Please provide a name or username to search");
-      }
-
       let user;
 
-      if (name) {
+      if (!name && !username) {
+        // Return all users if no search parameters are provided
+        user = await User.find();
+      } else if (name) {
         user = await User.findByName(name);
       } else if (username) {
         user = await User.findByName(username);

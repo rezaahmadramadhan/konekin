@@ -52,6 +52,11 @@ class User {
     return access_token;
   }
 
+  static async find() {
+    const users = await this.collection().find().toArray();
+    return users;
+  }
+
   static async findByName(search) {
     const users = await this.collection()
       .find({

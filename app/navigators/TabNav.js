@@ -1,6 +1,7 @@
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import HomeScreen from "../screens/HomeScreen";
 import ProfileScreen from "../screens/ProfileScreen";
+import NetworkScreen from "../screens/NetworkScreen";
 import { Text, View, StyleSheet, Alert } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 
@@ -55,7 +56,6 @@ const TabIcon = ({ name, focused }) => {
 
 export default function TabNav() {
   const navigation = useNavigation();
-
   return (
     <Tab.Navigator
       screenOptions={{
@@ -75,19 +75,13 @@ export default function TabNav() {
         options={{
           tabBarIcon: ({ focused }) => <TabIcon name="home" focused={focused} />,
           tabBarLabel: () => null,
-        }}
-      />
+        }}      />
       <Tab.Screen
         name="MyNetwork"
-        component={HomeScreen}
+        component={NetworkScreen}
         options={{
           tabBarIcon: ({ focused }) => <TabIcon name="network" focused={focused} />,
           tabBarLabel: () => null,
-        }}        listeners={{
-          tabPress: (e) => {
-            e.preventDefault();
-            Alert.alert('Info', 'Network feature coming soon!');
-          },
         }}
       />
       <Tab.Screen
@@ -96,7 +90,8 @@ export default function TabNav() {
         options={{
           tabBarIcon: ({ focused }) => <TabIcon name="post" focused={focused} />,
           tabBarLabel: () => null,
-        }}        listeners={{
+        }}
+        listeners={{
           tabPress: (e) => {
             e.preventDefault();
             navigation.navigate('CreatePost');
