@@ -102,9 +102,10 @@ export default function KonekInPost({ post }) {
   const handleComment = () => {
     navigation.navigate("Detail", { post: currentPost, openComments: true });
   };
-
   const handleShare = () => {
-    console.log("Share post:", currentPost._id);
+    Alert.alert("Info", "Share feature coming soon", [
+      { text: "OK", onPress: () => console.log("Share alert closed") },
+    ]);
   };
   return (
     <TouchableOpacity

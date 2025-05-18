@@ -4,6 +4,8 @@ import ProfileScreen from "../screens/ProfileScreen";
 import NetworkScreen from "../screens/NetworkScreen";
 import { Text, View, StyleSheet, Alert } from "react-native";
 import { useNavigation } from "@react-navigation/native";
+import Ionicons from "@expo/vector-icons/Ionicons";
+import Entypo from "@expo/vector-icons/Entypo";
 
 const Tab = createBottomTabNavigator();
 
@@ -14,31 +16,31 @@ const TabIcon = ({ name, focused }) => {
 
   switch (name) {
     case "home":
-      iconSymbol = "🏠";
+      iconSymbol = <Ionicons name="home" size={24} color="black" />;
       label = "Home";
       break;
     case "network":
-      iconSymbol = "👥";
+      iconSymbol = <Ionicons name="people-sharp" size={24} color="black" />;
       label = "Network";
       break;
     case "post":
-      iconSymbol = "➕";
+      iconSymbol = <Entypo name="squared-plus" size={24} color="black" />;
       label = "Post";
       break;
     case "notifications":
-      iconSymbol = "🔔";
-      label = "Notifications";
+      iconSymbol = <Ionicons name="notifications" size={24} color="black" />;
+      label = "Notif";
       break;
     case "jobs":
-      iconSymbol = "💼";
+      iconSymbol = <Ionicons name="briefcase" size={24} color="black" />;
       label = "Jobs";
       break;
     case "profile":
-      iconSymbol = "👤";
+      iconSymbol = <Ionicons name="person" size={24} color="black" />;
       label = "Profile";
       break;
     default:
-      iconSymbol = "❓";
+      iconSymbol = <Ionicons name="help-circle" size={24} color="black" />;
       label = "Unknown";
   }
 
@@ -142,7 +144,7 @@ const styles = StyleSheet.create({
   },
   tabIcon: {
     fontSize: 24,
-    marginBottom: 3,
+    marginBottom: 1,
   },
   tabIconFocused: {
     color: "#0077b5",
@@ -150,6 +152,10 @@ const styles = StyleSheet.create({
   tabLabel: {
     fontSize: 10,
     color: "#666",
+    width: 40,
+    textAlign: "center",
+    whiteSpace: "nowrap",
+    overflow: "hidden",
   },
   tabLabelFocused: {
     color: "#0077b5",

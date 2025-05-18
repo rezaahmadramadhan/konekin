@@ -60,11 +60,9 @@ export default function HomeScreen({ navigation }) {
     setRefreshing(true);
     refetch().then(() => setRefreshing(false));
   }, [refetch]);
-  // Refresh data setiap kali screen difokuskan (kembali dari Detail)
   useFocusEffect(
     useCallback(() => {
       console.log("Home screen focused - refreshing data");
-      // Add a small delay to ensure navigation transition completes
       const refreshTimeout = setTimeout(() => {
         refetch().catch((err) => {
           console.error("Error during refetch:", err);
@@ -77,10 +75,10 @@ export default function HomeScreen({ navigation }) {
       };
     }, [refetch])
   );
-  const handleCreatePost = () => {
-    console.log("Navigate to create post screen");
-    navigation.navigate("CreatePost");
-  }; // Filter posts based on search query
+  // const handleCreatePost = () => {
+  //   console.log("Navigate to create post screen");
+  //   navigation.navigate("CreatePost");
+  // };
   useEffect(() => {
     if (data && data.getPosts) {
       if (!searchQuery.trim()) {
@@ -156,7 +154,6 @@ export default function HomeScreen({ navigation }) {
     );
   }
 
-  console.log("Data received:", data);
   if (!data || !data.getPosts || data.getPosts.length === 0) {
     return (
       <SafeAreaView style={styles.container}>
@@ -227,7 +224,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#f5f5f5",
   },
   feedContainer: {
-    paddingBottom: 80, 
+    paddingBottom: 80,
   },
   loadingContainer: {
     flex: 1,
