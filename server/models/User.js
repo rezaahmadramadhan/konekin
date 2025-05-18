@@ -56,19 +56,22 @@ class User {
     const users = await this.collection().find().toArray();
     return users;
   }
-
   static async findByName(search) {
-    const users = await this.collection()
-      .find({
-        $or: [
-          { username: { $regex: search, $options: "i" } },
-          { name: { $regex: search, $options: "i" } },
-        ],
-      })
-      .toArray();
+    try {
+      const users = await this.collection()
+        .find({
+          $or: [
+            { username: { $regex: search, $options: "i" } },
+            { name: { $regex: search, $options: "i" } },
+          ],
+        })
+        .toArray();
 
-    if (users.length === 0) throw new Error("User not found");
-    return users;
+      return users;
+    } catch (error) {
+      console.error("Error in findByName:", error);
+      return [];
+    }
   }
 
   static async findById(id) {

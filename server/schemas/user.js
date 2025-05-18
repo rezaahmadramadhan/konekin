@@ -50,18 +50,37 @@ const userTypeDefs = `#graphql
 const userResolvers = {
   Query: {
     findUser: async (_, { name, username }) => {
-      let user;
+      try {
+        let user;
 
-      if (!name && !username) {
-        // Return all users if no search parameters are provided
-        user = await User.find();
-      } else if (name) {
-        user = await User.findByName(name);
-      } else if (username) {
-        user = await User.findByName(username);
+        if (!name && !username) {
+          // Return all users if no search parameters are provided
+          user = await User.find();
+        } else if (name && username) {
+          // If both are provided, we'll search for either
+          const nameResults = await User.findByName(name);
+          const usernameResults = await User.findByName(username);
+          
+          // Combine and remove duplicates
+          const combinedResults = [...nameResults, ...usernameResults];
+          const uniqueIds = {};
+          
+          user = combinedResults.filter(u => {
+            if (uniqueIds[u._id]) return false;
+            uniqueIds[u._id] = true;
+            return true;
+          });
+        } else if (name) {
+          user = await User.findByName(name);
+        } else if (username) {
+          user = await User.findByName(username);
+        }
+
+        return user;
+      } catch (error) {
+        console.error("Error in findUser resolver:", error);
+        return [];
       }
-
-      return user;
     },
 
     findUserById: async (_, { id }) => {
