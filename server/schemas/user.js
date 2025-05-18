@@ -60,12 +60,12 @@ const userResolvers = {
           // If both are provided, we'll search for either
           const nameResults = await User.findByName(name);
           const usernameResults = await User.findByName(username);
-          
+
           // Combine and remove duplicates
           const combinedResults = [...nameResults, ...usernameResults];
           const uniqueIds = {};
-          
-          user = combinedResults.filter(u => {
+
+          user = combinedResults.filter((u) => {
             if (uniqueIds[u._id]) return false;
             uniqueIds[u._id] = true;
             return true;
@@ -78,14 +78,13 @@ const userResolvers = {
 
         return user;
       } catch (error) {
-        console.error("Error in findUser resolver:", error);
-        return [];
+        throw new Error("Error in findUser resolver: ", error);
       }
     },
 
     findUserById: async (_, { id }) => {
       const user = await User.findById(id);
-      console.log(user, "ini user");
+      if (!user) throw new Error("User not found");
 
       return user;
     },

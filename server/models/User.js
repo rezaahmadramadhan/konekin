@@ -69,8 +69,7 @@ class User {
 
       return users;
     } catch (error) {
-      console.error("Error in findByName:", error);
-      return [];
+      throw new Error("Error fetching users: ", error);
     }
   }
 

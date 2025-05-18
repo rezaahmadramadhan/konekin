@@ -7,9 +7,11 @@ import {
   ActivityIndicator,
   TouchableOpacity,
   TextInput,
+  Alert,
 } from "react-native";
-import { useQuery, gql } from "@apollo/client";
+import { useQuery, useMutation, gql } from "@apollo/client";
 import { SafeAreaView } from "react-native-safe-area-context";
+import useProfile from "../hooks/useProfile";
 
 const FIND_USERS = gql`
   query FindUsers($name: String, $username: String) {
@@ -22,24 +24,88 @@ const FIND_USERS = gql`
   }
 `;
 
+const FOLLOW_USER = gql`
+  mutation FollowUser($followingId: ID) {
+    followUser(followingId: $followingId)
+  }
+`;
+
 export default function NetworkScreen() {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchParam, setSearchParam] = useState(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [connectionStates, setConnectionStates] = useState({});
+  const { userId, user } = useProfile();
   
-  // Use fetchPolicy 'cache-first' to prevent unnecessary refreshes
-  const { loading, error, data, refetch } = useQuery(FIND_USERS, {
-    variables: searchParam,
-    fetchPolicy: "cache-first",
-    onError: (error) => {
-      // Silently handle "User not found" errors for better UX
-      if (error.message.includes("User not found")) {
-        return;
+  // Get full user profile with followers and followings
+  const GET_USER_DETAILS = gql`
+    query Query($id: ID) {
+      findUserById(id: $id) {
+        _id
+        userFollowings {
+          _id
+        }
+      }
+    }
+  `;
+  
+  // Query to get the full user profile including followings
+  const { data: userDetailsData } = useQuery(GET_USER_DETAILS, {
+    variables: { id: userId },
+    skip: !userId,
+    onCompleted: (data) => {
+      if (data?.findUserById?.userFollowings) {
+        // Initialize connection states based on user's following list
+        const initialStates = {};
+        data.findUserById.userFollowings.forEach(following => {
+          initialStates[following._id] = "following";
+        });
+        setConnectionStates(initialStates);
       }
     }
   });
 
-  // Function to refresh only the content, not header or search
+  const { loading, error, data, refetch } = useQuery(FIND_USERS, {
+    variables: searchParam,
+    fetchPolicy: "cache-first",
+    onError: (error) => {
+      if (error.message.includes("User not found")) {
+        return;
+      }
+    },
+  });
+  const [followUser, { loading: followLoading }] = useMutation(FOLLOW_USER, {
+    onCompleted: (data) => {
+      const status = data.followUser;
+      if (status === "followed") {
+        Alert.alert("Success", "User followed successfully!");
+      } else if (status === "unfollowed") {
+        Alert.alert("Success", "User unfollowed successfully!");
+      }
+    },
+    onError: (error) => {
+      Alert.alert("Error", error.message || "Failed to follow user. Please try again.");
+    },
+    refetchQueries: [
+      { 
+        query: gql`
+          query Query($id: ID) {
+            findUserById(id: $id) {
+              _id
+              userFollowers {
+                _id
+              }
+              userFollowings {
+                _id
+              }
+            }
+          }
+        `, 
+        variables: { id: userId } 
+      }
+    ]
+  });
+
   const refreshContent = React.useCallback(() => {
     setIsRefreshing(true);
     refetch(searchParam).finally(() => {
@@ -47,78 +113,135 @@ export default function NetworkScreen() {
     });
   }, [refetch, searchParam]);
 
-  // Memo-ize the fixed parts of the UI to prevent refresh
-  const fixedHeader = React.useMemo(() => (
-    <View style={styles.header}>
-      <Text style={styles.headerTitle}>My Network</Text>
-    </View>
-  ), []);
-
-  const searchBar = React.useMemo(() => (
-    <View style={styles.searchContainer}>
-      <View style={styles.searchInputContainer}>
-        <Text style={styles.searchIcon}>🔍</Text>
-        <TextInput
-          style={styles.searchInput}
-          placeholder="Search by name or username..."
-          placeholderTextColor="#666"
-          value={searchQuery}
-          onChangeText={setSearchQuery}
-        />
-        {searchQuery.length > 0 && (
-          <TouchableOpacity 
-            style={styles.clearButton} 
-            onPress={() => setSearchQuery('')}
-          >
-            <Text style={styles.clearButtonText}>✕</Text>
-          </TouchableOpacity>
-        )}
+  const fixedHeader = React.useMemo(
+    () => (
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>My Network</Text>
       </View>
-    </View>
-  ), [searchQuery, setSearchQuery]);
+    ),
+    []
+  );
 
-  // Debounced search handling
+  const searchBar = React.useMemo(
+    () => (
+      <View style={styles.searchContainer}>
+        <View style={styles.searchInputContainer}>
+          <Text style={styles.searchIcon}>🔍</Text>
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Search by name or username..."
+            placeholderTextColor="#666"
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+          />
+          {searchQuery.length > 0 && (
+            <TouchableOpacity
+              style={styles.clearButton}
+              onPress={() => setSearchQuery("")}
+            >
+              <Text style={styles.clearButtonText}>✕</Text>
+            </TouchableOpacity>
+          )}
+        </View>
+      </View>
+    ),
+    [searchQuery, setSearchQuery]
+  );
   useEffect(() => {
     const timeoutId = setTimeout(() => {
       if (searchQuery.trim()) {
-        setSearchParam({ 
+        setSearchParam({
           name: searchQuery,
-          username: searchQuery
+          username: searchQuery,
         });
       } else {
         setSearchParam(null);
-        // When clearing search, refetch with null params but don't cause a refresh
         refetch({ name: null, username: null });
       }
     }, 500);
 
     return () => clearTimeout(timeoutId);
   }, [searchQuery]);
+  const handleConnectPress = (userId) => {
+    if (followLoading) return;
 
-  const renderUserItem = ({ item }) => (
-    <TouchableOpacity style={styles.userCard}>
-      <View style={styles.userInfo}>
-        <View style={styles.avatarContainer}>
-          <Text style={styles.avatarText}>
-            {item.name
-              ? item.name.charAt(0).toUpperCase()
-              : item.username.charAt(0).toUpperCase()}
+    // Update UI optimistically
+    setConnectionStates(prev => ({
+      ...prev,
+      [userId]: prev[userId] === "following" ? "connect" : "following"
+    }));
+
+    // Call the followUser mutation
+    followUser({
+      variables: {
+        followingId: userId,
+      },
+      update: (cache, { data }) => {
+        // Update the cache to reflect the follow/unfollow action
+        const status = data.followUser;
+        
+        // If we have the user details cached, update them
+        const cachedData = cache.readQuery({
+          query: GET_USER_DETAILS,
+          variables: { id: userId }
+        });
+
+        if (cachedData) {
+          // Update the cache with optimistic response
+          if (status === "followed" || status === "unfollowed") {
+            // Refresh the user profile data
+            refetch();
+          }
+        }
+      }
+    });
+  };const renderUserItem = ({ item }) => {
+    // Skip rendering if it's the current user
+    if (item._id === userId) {
+      return null;
+    }
+    
+    const connectionState = connectionStates[item._id] || "connect";
+    const isFollowing = connectionState === "following";
+
+    return (
+      <TouchableOpacity style={styles.userCard}>
+        <View style={styles.userInfo}>
+          <View style={styles.avatarContainer}>
+            <Text style={styles.avatarText}>
+              {item.name
+                ? item.name.charAt(0).toUpperCase()
+                : item.username.charAt(0).toUpperCase()}
+            </Text>
+          </View>
+          <View style={styles.userDetails}>
+            <Text style={styles.userName}>{item.name || "No name"}</Text>
+            <Text style={styles.userUsername}>@{item.username}</Text>
+            <Text style={styles.userEmail}>{item.email}</Text>
+          </View>
+        </View>
+        <TouchableOpacity 
+          style={[
+            styles.connectButton, 
+            isFollowing ? styles.followingButton : {}
+          ]}
+          onPress={() => handleConnectPress(item._id)}
+        >
+          <Text 
+            style={[
+              styles.connectButtonText,
+              isFollowing ? styles.followingButtonText : {}
+            ]}
+          >
+            {isFollowing ? "Following" : "Connect"}
           </Text>
-        </View>
-        <View style={styles.userDetails}>
-          <Text style={styles.userName}>{item.name || "No name"}</Text>
-          <Text style={styles.userUsername}>@{item.username}</Text>
-          <Text style={styles.userEmail}>{item.email}</Text>
-        </View>
-      </View>
-      <TouchableOpacity style={styles.connectButton}>
-        <Text style={styles.connectButtonText}>Connect</Text>
+        </TouchableOpacity>
       </TouchableOpacity>
-    </TouchableOpacity>
-  );  if (loading && !searchQuery && !data) {
+    );
+  };
+  if (loading && !searchQuery && !data) {
     return (
       <SafeAreaView style={styles.container}>
-        {/* Keep the fixed header and search even in loading state */}
         {fixedHeader}
         {searchBar}
         <View style={styles.centered}>
@@ -136,7 +259,10 @@ export default function NetworkScreen() {
         {searchBar}
         <View style={styles.centered}>
           <Text style={styles.errorText}>Error: {error.message}</Text>
-          <TouchableOpacity style={styles.retryButton} onPress={() => refreshContent()}>
+          <TouchableOpacity
+            style={styles.retryButton}
+            onPress={() => refreshContent()}
+          >
             <Text style={styles.retryButtonText}>Retry</Text>
           </TouchableOpacity>
         </View>
@@ -168,7 +294,9 @@ export default function NetworkScreen() {
             ListEmptyComponent={
               <View style={styles.emptyContainer}>
                 <Text style={styles.emptyText}>
-                  {searchQuery ? "No users found matching your search" : "No users found"}
+                  {searchQuery
+                    ? "No users found matching your search"
+                    : "No users found"}
                 </Text>
               </View>
             }
@@ -254,8 +382,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: "#999",
     marginTop: 2,
-  },
-  connectButton: {
+  },  connectButton: {
     backgroundColor: "#ffffff",
     borderWidth: 1,
     borderColor: "#0077b5",
@@ -267,6 +394,13 @@ const styles = StyleSheet.create({
     color: "#0077b5",
     fontWeight: "bold",
     fontSize: 14,
+  },
+  followingButton: {
+    backgroundColor: "#0077b5",
+    borderColor: "#0077b5",
+  },
+  followingButtonText: {
+    color: "#ffffff",
   },
   centered: {
     flex: 1,

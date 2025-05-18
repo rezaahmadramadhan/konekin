@@ -64,7 +64,8 @@ export default function DetailScreen({ route, navigation }) {
         error.message || "Failed to add comment. Please try again."
       );
     },
-  });  const [likePost, { loading: likeLoading }] = useMutation(LIKE_POST, {
+  });
+  const [likePost, { loading: likeLoading }] = useMutation(LIKE_POST, {
     onCompleted: (data) => {
       const status = data.likePost;
       const currentLikes = [...(postData.likes || [])];
@@ -106,28 +107,25 @@ export default function DetailScreen({ route, navigation }) {
         "Error",
         error.message || "Failed to like post. Please try again."
       );
-    },    update: (cache) => {
+    },
+    update: (cache) => {
       // Force a refetch when navigating back
       cache.modify({
         fields: {
           getPosts: (existingPosts = [], { readField }) => {
-            // Find the post and update it
-            return existingPosts.map(postRef => {
-              // Read the _id from the post reference
-              const postId = readField('_id', postRef);
-              
-              // If this is our post, update the cache
+            return existingPosts.map((postRef) => {
+              const postId = readField("_id", postRef);
+
               if (postId === postData._id) {
-                // We don't directly modify the cache here, just mark it as needing a refresh
                 cache.identify(postRef);
               }
-              
+
               return postRef;
             });
-          }
-        }
+          },
+        },
       });
-    }
+    },
   });
   React.useEffect(() => {
     if (openComments && commentInputRef.current) {

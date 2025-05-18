@@ -10,6 +10,16 @@ const GET_USER = gql`
       name
       username
       email
+      userFollowers {
+        _id
+        name
+        username
+      }
+      userFollowings {
+        _id
+        name
+        username
+      }
     }
   }
 `;

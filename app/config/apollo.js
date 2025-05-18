@@ -50,6 +50,21 @@ const client = new ApolloClient({
             }
           }
         }
+      },
+      User: {
+        keyFields: ["_id"],
+        fields: {
+          userFollowers: {
+            merge(existing = [], incoming) {
+              return incoming;
+            }
+          },
+          userFollowings: {
+            merge(existing = [], incoming) {
+              return incoming;
+            }
+          }
+        }
       }
     },
   }),
